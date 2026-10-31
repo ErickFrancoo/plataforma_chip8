@@ -2,20 +2,24 @@
 // Usado pelo laboratório (navegador) e, na próxima etapa, pelo verificador (servidor),
 // para que os dois leiam um programa exatamente do mesmo jeito.
 
+const ENDERECO_INICIAL = 0x200; // o programa é carregado a partir daqui
 const TAMANHO_MAXIMO = 3584; // espaço livre na memória, de 0x200 a 0xFFF
 
 // Converte o texto do editor em bytes. Cada instrução tem 4 dígitos hexadecimais,
 // e o que vem depois de // numa linha é comentário.
-// Devolve { bytes, erros }: se a lista de erros não estiver vazia, o programa não deve ser executado.
+// Devolve { bytes, erros, instrucoes }: se a lista de erros não estiver vazia, o programa não deve ser executado.
+// Cada item de instrucoes tem a linha do editor, o endereço, o código e o comentário da linha.
 function converterPrograma(texto) {
     const bytes = [];
     const erros = [];
+    const instrucoes = [];
     const linhas = texto.split('\n');
 
     for (let i = 0; i < linhas.length; i++) {
-        const semComentario = linhas[i].split('//')[0];
+        const partes = linhas[i].split('//');
+        const comentario = partes.slice(1).join('//').trim();
 
-        for (const palavra of semComentario.split(/\s+/)) {
+        for (const palavra of partes[0].split(/\s+/)) {
             if (palavra === '') {
                 continue;
             }
@@ -25,6 +29,12 @@ function converterPrograma(texto) {
                 continue;
             }
 
+            instrucoes.push({
+                linha: i + 1,
+                endereco: ENDERECO_INICIAL + bytes.length,
+                codigo: palavra.toUpperCase(),
+                comentario: comentario
+            });
             bytes.push(parseInt(palavra.slice(0, 2), 16));
             bytes.push(parseInt(palavra.slice(2, 4), 16));
         }
@@ -38,7 +48,7 @@ function converterPrograma(texto) {
         erros.push(`o programa tem ${bytes.length} bytes, e o máximo é ${TAMANHO_MAXIMO}`);
     }
 
-    return { bytes: new Uint8Array(bytes), erros: erros };
+    return { bytes: new Uint8Array(bytes), erros: erros, instrucoes: instrucoes };
 }
 
 // Faz o caminho inverso: transforma os bytes de um arquivo .ch8 em texto para o editor,
@@ -68,5 +78,5 @@ function hex2(valor) {
 
 // No Node (testes e servidor) as funções são exportadas; no navegador elas ficam disponíveis direto.
 if (typeof module !== 'undefined') {
-    module.exports = { converterPrograma, textoDoPrograma, TAMANHO_MAXIMO };
+    module.exports = { converterPrograma, textoDoPrograma, ENDERECO_INICIAL, TAMANHO_MAXIMO };
 }

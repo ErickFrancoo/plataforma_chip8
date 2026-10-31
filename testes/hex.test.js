@@ -48,3 +48,22 @@ test('texto e bytes vão e voltam sem mudar', () => {
     const resultado = converterPrograma(textoDoPrograma(original));
     assert.deepStrictEqual(Array.from(resultado.bytes), Array.from(original));
 });
+
+test('devolve endereço, código e comentário de cada instrução', () => {
+    const resultado = converterPrograma('// título\n6003  // V0 = 3\n\n8a14  // soma');
+    assert.deepStrictEqual(resultado.instrucoes, [
+        { linha: 2, endereco: 0x200, codigo: '6003', comentario: 'V0 = 3' },
+        { linha: 4, endereco: 0x202, codigo: '8A14', comentario: 'soma' }
+    ]);
+});
+
+test('instrução sem comentário fica com o comentário vazio', () => {
+    const resultado = converterPrograma('6003');
+    assert.strictEqual(resultado.instrucoes[0].comentario, '');
+});
+
+test('várias instruções na mesma linha dividem o comentário da linha', () => {
+    const resultado = converterPrograma('6003 6107 // dois valores');
+    assert.deepStrictEqual(resultado.instrucoes.map((i) => [i.endereco, i.comentario]),
+        [[0x200, 'dois valores'], [0x202, 'dois valores']]);
+});

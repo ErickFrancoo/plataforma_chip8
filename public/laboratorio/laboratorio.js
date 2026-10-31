@@ -1,9 +1,13 @@
 // Laboratório: liga o núcleo (chip8.wasm) à página.
 // A cada quadro, 60 vezes por segundo, ele lê o teclado, executa um bloco de instruções
-// e redesenha a tela e o painel. É a regra da primeira etapa: Run(10) por quadro dá
-// 600 instruções e 60 descidas dos timers por segundo.
+// e redesenha a tela, o painel e a listagem. É a regra da primeira etapa: Run(10) por quadro
+// dá 600 instruções e 60 descidas dos timers por segundo.
+//
+// A página tem dois modos: editando (o texto do programa) e executando (a listagem com a
+// próxima instrução destacada). O modo fica na classe "editando" do body.
 
 const QUADROS_POR_SEGUNDO = 60;
+const INSTRUCOES_POR_QUADRO = [1, 5, 10, 25, 50, 100]; // as posições da barra de velocidade
 
 // Mesma ordem dos códigos de parada do núcleo (chip8.hpp)
 const MOTIVOS_DE_PARADA = [
@@ -19,25 +23,33 @@ const MOTIVOS_DE_PARADA = [
 const editor = document.getElementById('editor');
 const listaDeErros = document.getElementById('erros');
 const situacao = document.getElementById('situacao');
-const seletorDeVelocidade = document.getElementById('velocidade');
+const barraDeVelocidade = document.getElementById('velocidade');
+const textoDaVelocidade = document.getElementById('velocidade-texto');
 const seletorDePerfil = document.getElementById('perfil');
-const seletorDeExemplos = document.getElementById('exemplos');
+const botoesDeExemplo = document.getElementById('exemplos');
 const botaoExecutar = document.getElementById('botao-executar');
 const botaoPausar = document.getElementById('botao-pausar');
 const botaoPasso = document.getElementById('botao-passo');
 const botaoReiniciar = document.getElementById('botao-reiniciar');
+const botaoEditar = document.getElementById('botao-editar');
 
 const tela = new Tela(document.getElementById('tela'));
 const teclado = new Teclado();
 const som = new Som();
 const painel = new Painel();
+const listagem = new Listagem(
+    document.getElementById('listagem'),
+    document.getElementById('destaque'),
+    document.getElementById('agora')
+);
 
 let modulo = null;      // o núcleo carregado, com as constantes de parada
 let chip = null;        // a máquina CHIP-8
 let programa = null;    // bytes do programa carregado, guardados para reiniciar
 let executando = false;
+let editando = true;
 
-// Lê o editor e, se o programa estiver certo, começa a executá-lo do início
+// Lê o editor e, se o programa estiver certo, passa para a listagem e começa a executar do início
 function executar() {
     const resultado = converterPrograma(editor.value);
     mostrarErros(resultado.erros);
@@ -47,6 +59,8 @@ function executar() {
     }
 
     programa = resultado.bytes;
+    definirModo(false);
+    listagem.montar(resultado.instrucoes);
     reiniciar();
     continuar();
 }
@@ -75,6 +89,16 @@ function proximaInstrucao() {
     chip.Run(1);
 }
 
+function definirModo(modoEdicao) {
+    editando = modoEdicao;
+    document.body.classList.toggle('editando', editando);
+}
+
+function editar() {
+    pausar();
+    definirModo(true);
+}
+
 function aplicarPerfil() {
     if (seletorDePerfil.value === 'original') {
         usarPerfilOriginal(chip);
@@ -83,12 +107,19 @@ function aplicarPerfil() {
     }
 }
 
+function instrucoesPorQuadro() {
+    return INSTRUCOES_POR_QUADRO[Number(barraDeVelocidade.value)];
+}
+
+function mostrarVelocidade() {
+    textoDaVelocidade.textContent = `${instrucoesPorQuadro() * QUADROS_POR_SEGUNDO} instruções por segundo`;
+}
+
 function quadro() {
     teclado.atualizar(chip);
 
     if (executando) {
-        const instrucoesPorQuadro = Number(seletorDeVelocidade.value);
-        const continua = chip.Run(instrucoesPorQuadro);
+        const continua = chip.Run(instrucoesPorQuadro());
 
         if (!continua) {
             executando = false;
@@ -100,6 +131,7 @@ function quadro() {
 
     if (programa !== null) {
         painel.atualizar(chip);
+        listagem.atualizar(chip.Get_PC());
     }
 
     atualizarBotoes();
@@ -132,9 +164,12 @@ function textoDaSituacao() {
 function atualizarBotoes() {
     const carregado = programa !== null;
     const podeContinuar = carregado && chip.Get_Last_Error() === modulo.RUNNING;
+    const rotuloDoPausar = executando ? 'Pausar' : 'Continuar';
 
     botaoPausar.disabled = !podeContinuar;
-    botaoPausar.textContent = executando ? 'Pausar' : 'Continuar';
+    botaoPausar.classList.toggle('em-pausa', !executando);
+    botaoPausar.title = rotuloDoPausar;
+    botaoPausar.setAttribute('aria-label', rotuloDoPausar);
     botaoPasso.disabled = !podeContinuar || executando;
     botaoReiniciar.disabled = !carregado;
 }
@@ -149,15 +184,29 @@ function mostrarErros(erros) {
     }
 }
 
+// Um botão por exemplo; escolher um exemplo coloca o programa no editor, sem executar
 function preencherExemplos() {
     for (let i = 0; i < EXEMPLOS.length; i++) {
-        const opcao = document.createElement('option');
-        opcao.value = i;
-        opcao.textContent = EXEMPLOS[i].nome;
-        seletorDeExemplos.appendChild(opcao);
+        const botao = document.createElement('button');
+        botao.type = 'button';
+        botao.className = 'chip';
+        botao.textContent = EXEMPLOS[i].rotulo;
+        botao.title = EXEMPLOS[i].nome;
+        botao.addEventListener('click', () => escolherExemplo(i));
+        botoesDeExemplo.appendChild(botao);
     }
 
-    editor.value = EXEMPLOS[0].codigo;
+    escolherExemplo(0);
+}
+
+function escolherExemplo(posicao) {
+    editor.value = EXEMPLOS[posicao].codigo;
+    mostrarErros([]);
+    editar();
+
+    botoesDeExemplo.querySelectorAll('.chip').forEach((botao, i) => {
+        botao.classList.toggle('ativo', i === posicao);
+    });
 }
 
 // Um arquivo .ch8 vira texto no editor e já começa a executar
@@ -172,11 +221,9 @@ botaoExecutar.addEventListener('click', executar);
 botaoPausar.addEventListener('click', () => (executando ? pausar() : continuar()));
 botaoPasso.addEventListener('click', proximaInstrucao);
 botaoReiniciar.addEventListener('click', reiniciar);
+botaoEditar.addEventListener('click', editar);
 seletorDePerfil.addEventListener('change', aplicarPerfil);
-seletorDeExemplos.addEventListener('change', () => {
-    editor.value = EXEMPLOS[seletorDeExemplos.value].codigo;
-    mostrarErros([]);
-});
+barraDeVelocidade.addEventListener('input', mostrarVelocidade);
 document.getElementById('arquivo').addEventListener('change', (evento) => {
     if (evento.target.files.length > 0) {
         abrirArquivo(evento.target.files[0]);
@@ -189,6 +236,7 @@ carregarNucleo().then((nucleo) => {
     chip = new modulo.Chip8();
     aplicarPerfil();
     preencherExemplos();
+    mostrarVelocidade();
     botaoExecutar.disabled = false;
     setInterval(quadro, 1000 / QUADROS_POR_SEGUNDO);
 });

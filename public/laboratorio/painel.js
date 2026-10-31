@@ -1,4 +1,4 @@
-// Mostra o estado da máquina: registradores, I, PC, SP, timers e a próxima instrução.
+// Mostra o estado da máquina: registradores, I, PC, SP e timers.
 // No passo a passo, destaca o que mudou na última instrução.
 
 class Painel {
@@ -40,10 +40,5 @@ class Painel {
             const mudou = this.anterior !== null && this.anterior[nome] !== estado[nome];
             elemento.parentElement.classList.toggle('mudou', mudou);
         }
-
-        const pc = estado.PC;
-        const instrucao = hex2(chip.Get_Memory(pc)) + hex2(chip.Get_Memory(pc + 1));
-        document.getElementById('instrucao').textContent =
-            instrucao + ' no endereço 0x' + pc.toString(16).toUpperCase().padStart(3, '0');
     }
 }

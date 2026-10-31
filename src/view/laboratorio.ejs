@@ -4,54 +4,53 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/laboratorio/estilo.css">
 </head>
-<body>
-    <header>
-        <h1>Laboratório CHIP-8</h1>
-        <p>Escreva um programa em hexadecimal ou abra um arquivo .ch8 e veja a CPU funcionando.</p>
+<body class="editando">
+    <header class="topo">
+        <div class="marca">
+            <span class="logo"></span>
+            <h1>CHIP-8 LAB</h1>
+        </div>
+        <p class="subtitulo">Escreva um programa em hexadecimal e veja a CPU funcionando.</p>
+        <label class="perfil">Perfil
+            <select id="perfil">
+                <option value="original" selected>CHIP-8 original</option>
+                <option value="moderno">SUPER-CHIP (jogos mais novos)</option>
+            </select>
+        </label>
     </header>
 
     <main>
-        <section class="maquina">
-            <canvas id="tela" width="640" height="320"></canvas>
-
-            <div class="controles">
-                <button id="botao-executar" disabled>Executar</button>
-                <button id="botao-pausar" disabled>Pausar</button>
-                <button id="botao-passo" disabled>Próxima instrução</button>
-                <button id="botao-reiniciar" disabled>Reiniciar</button>
+        <section class="cartao maquina">
+            <div class="moldura">
+                <canvas id="tela" width="640" height="320"></canvas>
             </div>
 
             <div class="controles">
-                <label>Velocidade
-                    <select id="velocidade">
-                        <option value="1">muito lenta (60 instruções/s)</option>
-                        <option value="10" selected>normal (600 instruções/s)</option>
-                        <option value="50">rápida (3.000 instruções/s)</option>
-                        <option value="100">muito rápida (6.000 instruções/s)</option>
-                    </select>
-                </label>
-                <label>Perfil
-                    <select id="perfil">
-                        <option value="original" selected>CHIP-8 original</option>
-                        <option value="moderno">SUPER-CHIP (jogos mais novos)</option>
-                    </select>
-                </label>
+                <button id="botao-executar" class="principal" disabled>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                    Executar
+                </button>
+                <button id="botao-pausar" class="icone" disabled title="Pausar" aria-label="Pausar">
+                    <svg class="icone-pausar" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+                    <svg class="icone-continuar" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button id="botao-passo" class="icone" disabled title="Próxima instrução" aria-label="Próxima instrução">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14l9-7zM16 5h3v14h-3z"/></svg>
+                </button>
+                <button id="botao-reiniciar" class="icone" disabled title="Reiniciar" aria-label="Reiniciar">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                </button>
+                <div class="velocidade">
+                    <input type="range" id="velocidade" min="0" max="5" value="2" aria-label="Velocidade">
+                    <span id="velocidade-texto"></span>
+                </div>
             </div>
 
             <p id="situacao" class="situacao">Carregando o núcleo...</p>
 
-            <p class="ajuda">
-                Teclado do CHIP-8: <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd>
-                <kbd>Q</kbd><kbd>W</kbd><kbd>E</kbd><kbd>R</kbd>
-                <kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd>
-                <kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd>
-            </p>
-        </section>
-
-        <section class="estado">
-            <h2>Estado da máquina</h2>
             <div class="registradores">
                 <% const nomes = ['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7',
                                   'V8', 'V9', 'VA', 'VB', 'VC', 'VD', 'VE', 'VF',
@@ -63,20 +62,39 @@
                     </div>
                 <% } %>
             </div>
-            <p class="legenda">DT: timer de atraso · ST: timer de som · em verde, o que mudou na última instrução</p>
+            <p class="legenda">DT: timer de atraso · ST: timer de som · em laranja, o que mudou na última instrução</p>
 
-            <h2>Próxima instrução</h2>
-            <p id="instrucao" class="instrucao">--</p>
+            <p class="ajuda">
+                Teclado do CHIP-8: <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd>
+                <kbd>Q</kbd><kbd>W</kbd><kbd>E</kbd><kbd>R</kbd>
+                <kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd>
+                <kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd>
+            </p>
         </section>
 
-        <section class="programa">
-            <h2>Programa</h2>
-            <div class="controles">
-                <label>Exemplo <select id="exemplos"></select></label>
-                <label>Abrir arquivo .ch8 <input type="file" id="arquivo" accept=".ch8"></label>
-            </div>
+        <section class="cartao programa">
+            <div id="exemplos" class="chips"></div>
+
             <textarea id="editor" spellcheck="false"></textarea>
+
+            <div id="listagem" class="listagem">
+                <div id="destaque" class="destaque oculto"></div>
+            </div>
+
+            <div id="agora" class="agora">
+                <span class="rotulo">PRÓXIMA INSTRUÇÃO</span>
+                <p class="agora-instrucao"></p>
+                <p class="agora-comentario"></p>
+            </div>
+
             <ul id="erros" class="erros"></ul>
+
+            <div class="acoes">
+                <button id="botao-editar" class="chip" type="button">Editar</button>
+                <label class="chip">Abrir .ch8
+                    <input type="file" id="arquivo" accept=".ch8" hidden>
+                </label>
+            </div>
         </section>
     </main>
 
@@ -89,6 +107,7 @@
     <script src="/laboratorio/teclado.js"></script>
     <script src="/laboratorio/som.js"></script>
     <script src="/laboratorio/painel.js"></script>
+    <script src="/laboratorio/listagem.js"></script>
     <script src="/laboratorio/laboratorio.js"></script>
 </body>
 </html>

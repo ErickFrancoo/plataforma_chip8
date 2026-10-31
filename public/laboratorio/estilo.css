@@ -1,171 +1,412 @@
-/* Cores no mesmo tom dos relatórios da equipe */
+/* Paleta "Game Boy". Para mudar o visual, basta trocar as cores deste bloco. */
 :root {
-    --texto: #2c2c2a;
-    --suave: #5f5e5a;
-    --roxo: #534ab7;
-    --roxo-escuro: #3c3489;
-    --fundo-claro: #eeedfe;
-    --linha: #d3d1c7;
-    --verde: #d9f2d0;
-    --vermelho: #a32d2d;
+    --fundo: #eef3dc;
+    --cartao: #fbfdf3;
+    --linha: #cfd9b0;
+    --texto: #1f3a1f;
+    --suave: #5b7a52;
+    --verde: #306230;
+    --verde-claro: #dcebb8;
+    --verde-escuro: #0f380f;
+    --registrador: #e4ecc8;
+    --atual: #c6df6a;
+    --mudou: #ffd2a8;
+    --mudou-texto: #8a4a12;
+    --erro: #a32d2d;
+    --tela-fundo: #0f380f;
+    --tela-pixel: #9bbc0f;
+    --moldura: #4a5a3a;
+
+    --fonte-pixel: 'Silkscreen', Consolas, monospace;
+    --fonte-codigo: Consolas, 'Courier New', monospace;
+    --altura-programa: 300px;
 }
 
 body {
     margin: 0;
-    font-family: Calibri, Carlito, Arial, sans-serif;
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
     color: var(--texto);
-    background: #fafaf8;
+    background: var(--fundo);
 }
 
-header {
-    padding: 20px 32px 12px;
-    border-bottom: 3px solid var(--roxo);
-    background: white;
+button {
+    font: inherit;
+    border: 0;
+    cursor: pointer;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--verde);
+    outline-offset: 2px;
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* Topo */
+.topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 16px 32px;
+}
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    width: 22px;
+    height: 22px;
+    background: var(--verde);
+    border-radius: 6px;
 }
 
 h1 {
     margin: 0;
-    color: var(--roxo-escuro);
+    font-family: var(--fonte-pixel);
+    font-size: 20px;
+    color: var(--verde-escuro);
 }
 
-header p {
-    margin: 6px 0 0;
+.subtitulo {
+    margin: 0;
     color: var(--suave);
 }
 
-h2 {
-    font-size: 17px;
-    margin: 0 0 10px;
-    color: var(--roxo-escuro);
+.perfil {
+    margin-left: auto;
+    color: var(--suave);
+    font-size: 14px;
 }
 
+.perfil select {
+    font: inherit;
+    padding: 3px 8px;
+    border: 1px solid var(--linha);
+    border-radius: 999px;
+    background: var(--cartao);
+    color: var(--texto);
+}
+
+/* Organização da página: duas colunas, e uma só em janelas estreitas */
 main {
     display: grid;
-    grid-template-columns: minmax(0, 660px) minmax(0, 1fr);
-    gap: 24px;
-    padding: 24px 32px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 20px;
+    padding: 0 32px 32px;
 }
 
-section {
-    background: white;
+.cartao {
+    background: var(--cartao);
     border: 1px solid var(--linha);
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 16px;
 }
 
-.programa {
-    grid-column: 1 / -1;
+/* Máquina: tela, controles e registradores */
+.moldura {
+    background: var(--moldura);
+    padding: 12px;
+    border-radius: 16px;
 }
 
 canvas {
+    display: block;
     width: 100%;
+    border-radius: 6px;
     image-rendering: pixelated;
-    border-radius: 4px;
 }
 
 .controles {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 16px;
     align-items: center;
-    margin-top: 12px;
+    gap: 10px;
+    margin-top: 14px;
 }
 
-button {
-    font: inherit;
-    padding: 6px 14px;
-    border: 1px solid var(--roxo);
-    border-radius: 6px;
-    background: var(--roxo);
+.principal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: var(--verde);
     color: white;
-    cursor: pointer;
+    font-weight: 600;
 }
 
-button:disabled {
-    background: white;
+.icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--verde-claro);
+    color: var(--verde-escuro);
+}
+
+button svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+#botao-pausar .icone-continuar {
+    display: none;
+}
+
+#botao-pausar.em-pausa .icone-continuar {
+    display: block;
+}
+
+#botao-pausar.em-pausa .icone-pausar {
+    display: none;
+}
+
+button:not(:disabled):hover {
+    filter: brightness(0.93);
+}
+
+.velocidade {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    font-size: 12px;
     color: var(--suave);
-    border-color: var(--linha);
-    cursor: default;
 }
 
-select {
-    font: inherit;
+.velocidade input {
+    width: 130px;
+    accent-color: var(--verde);
 }
 
 .situacao {
-    font-weight: bold;
-    margin: 14px 0 6px;
+    margin: 14px 0 12px;
+    font-weight: 600;
 }
 
-.ajuda,
-.legenda {
+.registradores {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 5px;
+}
+
+.registrador {
+    padding: 3px 0;
+    text-align: center;
+    background: var(--registrador);
+    border-radius: 8px;
+    font-family: var(--fonte-codigo);
+    transition: background 0.3s;
+}
+
+.registrador span {
+    display: block;
+    font-family: var(--fonte-pixel);
+    font-size: 10px;
     color: var(--suave);
-    font-size: 14px;
+}
+
+.registrador strong {
+    font-weight: normal;
+    font-size: 13px;
+}
+
+.registrador.mudou {
+    background: var(--mudou);
+    color: var(--mudou-texto);
+}
+
+.registrador.mudou span {
+    color: var(--mudou-texto);
+}
+
+.legenda,
+.ajuda {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: var(--suave);
 }
 
 kbd {
     display: inline-block;
     min-width: 14px;
-    padding: 1px 4px;
     margin: 1px;
+    padding: 1px 4px;
     border: 1px solid var(--linha);
-    border-radius: 3px;
-    background: var(--fundo-claro);
+    border-radius: 4px;
+    background: var(--registrador);
     text-align: center;
-    font-family: Consolas, monospace;
+    font-family: var(--fonte-codigo);
 }
 
-.registradores {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+/* Programa: editor, listagem e explicação da próxima instrução */
+.chips,
+.acoes {
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
 }
 
-.registrador {
-    border: 1px solid var(--linha);
-    border-radius: 6px;
-    padding: 4px 8px;
-    display: flex;
-    justify-content: space-between;
+.acoes {
+    margin-top: 12px;
 }
 
-.registrador span {
-    color: var(--suave);
+.chip {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--verde-claro);
+    color: var(--verde-escuro);
+    font-size: 13px;
+    cursor: pointer;
 }
 
-.registrador strong {
-    font-family: Consolas, monospace;
-}
-
-.registrador.mudou {
+.chip.ativo {
     background: var(--verde);
+    color: white;
 }
 
-.instrucao {
-    font-family: Consolas, monospace;
-    font-size: 18px;
+textarea,
+.listagem {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--altura-programa);
+    margin-top: 12px;
+    border: 1px solid var(--linha);
+    border-radius: 12px;
+    background: white;
+    font-family: var(--fonte-codigo);
+    font-size: 13px;
 }
 
 textarea {
-    width: 100%;
-    box-sizing: border-box;
-    height: 260px;
+    padding: 10px;
+    resize: none;
+    color: var(--texto);
+}
+
+.listagem {
+    position: relative;
+    padding: 4px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.linha {
+    position: relative; /* fica por cima da faixa de destaque */
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 28px;
+    padding: 0 10px;
+    transition: opacity 0.3s;
+}
+
+.linha.feita {
+    opacity: 0.45;
+}
+
+.linha .endereco {
+    width: 32px;
+    color: var(--suave);
+}
+
+.linha .codigo {
+    width: 40px;
+    font-weight: bold;
+}
+
+.linha .comentario {
+    flex: 1;
+    min-width: 0;
+    color: var(--suave);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* A faixa desliza de uma instrução para a próxima */
+.destaque {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    top: 4px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--atual);
+    transition: top 0.18s ease, opacity 0.2s;
+}
+
+.destaque.oculto {
+    opacity: 0;
+}
+
+.agora {
     margin-top: 12px;
-    font-family: Consolas, monospace;
+    padding: 8px 12px;
+    border: 1.5px dashed var(--verde);
+    border-radius: 12px;
+}
+
+.agora .rotulo {
+    font-family: var(--fonte-pixel);
+    font-size: 10px;
+    color: var(--verde);
+}
+
+.agora p {
+    margin: 2px 0 0;
+}
+
+.agora-instrucao {
+    font-family: var(--fonte-codigo);
+    font-weight: bold;
+}
+
+.agora-comentario {
+    min-height: 1.2em;
     font-size: 14px;
-    padding: 8px;
-    border: 1px solid var(--linha);
-    border-radius: 6px;
+    color: var(--suave);
 }
 
 .erros {
-    color: var(--vermelho);
     margin: 8px 0 0;
+    color: var(--erro);
 }
 
-@media (max-width: 900px) {
+/* Os dois modos: editar o texto ou acompanhar a execução */
+body.editando .listagem,
+body.editando .agora,
+body.editando #botao-editar {
+    display: none;
+}
+
+body:not(.editando) #editor {
+    display: none;
+}
+
+@media (max-width: 860px) {
     main {
         grid-template-columns: 1fr;
+        padding: 0 16px 24px;
+    }
+
+    .topo {
         padding: 16px;
+    }
+
+    .registradores {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
