@@ -1,0 +1,171 @@
+/* Cores no mesmo tom dos relatórios da equipe */
+:root {
+    --texto: #2c2c2a;
+    --suave: #5f5e5a;
+    --roxo: #534ab7;
+    --roxo-escuro: #3c3489;
+    --fundo-claro: #eeedfe;
+    --linha: #d3d1c7;
+    --verde: #d9f2d0;
+    --vermelho: #a32d2d;
+}
+
+body {
+    margin: 0;
+    font-family: Calibri, Carlito, Arial, sans-serif;
+    color: var(--texto);
+    background: #fafaf8;
+}
+
+header {
+    padding: 20px 32px 12px;
+    border-bottom: 3px solid var(--roxo);
+    background: white;
+}
+
+h1 {
+    margin: 0;
+    color: var(--roxo-escuro);
+}
+
+header p {
+    margin: 6px 0 0;
+    color: var(--suave);
+}
+
+h2 {
+    font-size: 17px;
+    margin: 0 0 10px;
+    color: var(--roxo-escuro);
+}
+
+main {
+    display: grid;
+    grid-template-columns: minmax(0, 660px) minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px 32px;
+}
+
+section {
+    background: white;
+    border: 1px solid var(--linha);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.programa {
+    grid-column: 1 / -1;
+}
+
+canvas {
+    width: 100%;
+    image-rendering: pixelated;
+    border-radius: 4px;
+}
+
+.controles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+button {
+    font: inherit;
+    padding: 6px 14px;
+    border: 1px solid var(--roxo);
+    border-radius: 6px;
+    background: var(--roxo);
+    color: white;
+    cursor: pointer;
+}
+
+button:disabled {
+    background: white;
+    color: var(--suave);
+    border-color: var(--linha);
+    cursor: default;
+}
+
+select {
+    font: inherit;
+}
+
+.situacao {
+    font-weight: bold;
+    margin: 14px 0 6px;
+}
+
+.ajuda,
+.legenda {
+    color: var(--suave);
+    font-size: 14px;
+}
+
+kbd {
+    display: inline-block;
+    min-width: 14px;
+    padding: 1px 4px;
+    margin: 1px;
+    border: 1px solid var(--linha);
+    border-radius: 3px;
+    background: var(--fundo-claro);
+    text-align: center;
+    font-family: Consolas, monospace;
+}
+
+.registradores {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.registrador {
+    border: 1px solid var(--linha);
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.registrador span {
+    color: var(--suave);
+}
+
+.registrador strong {
+    font-family: Consolas, monospace;
+}
+
+.registrador.mudou {
+    background: var(--verde);
+}
+
+.instrucao {
+    font-family: Consolas, monospace;
+    font-size: 18px;
+}
+
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    height: 260px;
+    margin-top: 12px;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    padding: 8px;
+    border: 1px solid var(--linha);
+    border-radius: 6px;
+}
+
+.erros {
+    color: var(--vermelho);
+    margin: 8px 0 0;
+}
+
+@media (max-width: 900px) {
+    main {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+}
