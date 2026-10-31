@@ -1,0 +1,9 @@
+# dependências instaladas pelo npm install
+node_modules/
+
+# testador nativo, gerado por nucleo/compilar.bat
+nucleo/build/*.exe
+
+# arquivos que o Windows cria nas pastas
+desktop.ini
+Thumbs.db

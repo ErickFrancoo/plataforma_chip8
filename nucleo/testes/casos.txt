@@ -1,0 +1,25 @@
+# Casos de teste do núcleo, usados pelos dois testadores (nativo e WebAssembly).
+#
+# Cada linha: nome; programa em hexadecimal; estado esperado ao final
+# O programa roda até parar ou até 1000 instruções.
+# Estado esperado: V0 a VF, I, PC, SP, DT (timer de atraso) e ST (timer de som), em hexadecimal,
+# e a parada: rodando, fim, instrucao_desconhecida, pilha, salto_invalido, indice_invalido ou pc_fora_da_memoria.
+# Não use CXNN (sorteio) aqui: o número sorteado pode mudar entre o g++ e o Emscripten. A semente é testada à parte.
+
+soma 3 + 7; 6003 6107 8200 8214 1208; V0=03 V1=07 V2=0A VF=00 PC=208 parada=fim
+soma com vai-um (200 + 100); 60C8 6164 8014 1206; V0=2C VF=01 PC=206 parada=fim
+fim do programa; 1200; PC=200 parada=fim
+sub-rotina; 2206 6101 1204 6005 00EE; V0=05 V1=01 SP=00 PC=204 parada=fim
+
+# O timer começa em 6 e desce 1 a cada 10 instruções (60 ao todo).
+# Cada volta do laço tem 4 instruções, então V1 conta 16 (0x10) voltas.
+timers: 1 tick a cada 10 instrucoes; 6006 F015 7101 F207 3200 1204 120C; V1=10 V2=00 DT=00 PC=20C parada=fim
+
+laco infinito para no limite; 7001 1200; V0=F4 PC=200 parada=rodando
+esperar tecla sem teclado para no limite; 6000 F00A 1204; PC=202 parada=rodando
+programa sem o salto final; 6003; V0=03 PC=204 parada=instrucao_desconhecida
+instrucao desconhecida; 6001 5121; V0=01 PC=204 parada=instrucao_desconhecida
+retorno sem chamada; 00EE; PC=202 parada=pilha
+salto para fora da memoria; 60FF BFFF; PC=204 parada=salto_invalido
+indice fora da memoria; AFFF F155; I=FFF PC=204 parada=indice_invalido
+pc fora da memoria; 1FFF; PC=FFF parada=pc_fora_da_memoria
