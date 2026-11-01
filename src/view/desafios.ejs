@@ -1,0 +1,29 @@
+<%# Lista de desafios (UC05). Recebe: desafios. %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Desafios · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'desafios', comPerfil: false }) %>
+
+    <main class="pagina">
+        <h2>Desafios</h2>
+        <p class="subtitulo">Escreva um programa em hexadecimal que deixe a máquina no estado pedido.</p>
+
+        <div class="lista-desafios">
+            <% for (const desafio of desafios) { %>
+                <a class="cartao cartao-desafio" href="/desafios/<%= desafio.id %>">
+                    <span class="rotulo"><%= desafio.conceito.toUpperCase() %></span>
+                    <strong><%= desafio.titulo %></strong>
+                    <span class="detalhe"><%= desafio.dificuldade %></span>
+                </a>
+            <% } %>
+        </div>
+    </main>
+</body>
+</html>

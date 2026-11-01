@@ -1,25 +1,45 @@
-// Servidor da plataforma. Nesta etapa ele só entrega a página do laboratório
-// e os arquivos que ela usa.
+// Servidor da plataforma: entrega o laboratório e os desafios, e verifica as soluções enviadas.
 const path = require('path');
 const express = require('express');
 const LaboratorioController = require('./src/controller/LaboratorioController');
+const DesafioController = require('./src/controller/DesafioController');
+const SubmissaoController = require('./src/controller/SubmissaoController');
+const DesafioRepositorio = require('./src/model/dados/DesafioRepositorio');
+const Nucleo = require('./src/model/verificacao/Nucleo');
+const Verificador = require('./src/model/verificacao/Verificador');
 
 const PORTA = 3000;
 const PASTA_NUCLEO = path.join(__dirname, 'nucleo', 'build');
 
-const app = express();
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'src', 'view'));
+// O núcleo precisa terminar de carregar antes de o servidor começar a atender
+async function iniciar() {
+    const nucleo = await Nucleo.carregar();
+    const repositorio = new DesafioRepositorio();
 
-// Arquivos usados pela página: scripts do laboratório, código compartilhado e o núcleo
-app.use('/laboratorio', express.static(path.join(__dirname, 'public', 'laboratorio')));
-app.use('/compartilhado', express.static(path.join(__dirname, 'compartilhado')));
-app.get('/nucleo/chip8.js', (req, res) => res.sendFile(path.join(PASTA_NUCLEO, 'chip8.js')));
-app.get('/nucleo/chip8.wasm', (req, res) => res.sendFile(path.join(PASTA_NUCLEO, 'chip8.wasm')));
+    const laboratorio = new LaboratorioController();
+    const desafios = new DesafioController(repositorio);
+    const submissoes = new SubmissaoController(repositorio, new Verificador(nucleo));
 
-const laboratorio = new LaboratorioController();
-app.get('/', (req, res) => laboratorio.abrir(req, res));
+    const app = express();
+    app.set('view engine', 'ejs');
+    app.set('views', path.join(__dirname, 'src', 'view'));
+    app.use(express.urlencoded({ extended: false })); // lê os formulários enviados pelo navegador
 
-app.listen(PORTA, () => {
-    console.log(`Laboratório em http://localhost:${PORTA}`);
-});
+    // Arquivos usados pelas páginas: scripts do laboratório, código compartilhado e o núcleo
+    app.use('/laboratorio', express.static(path.join(__dirname, 'public', 'laboratorio')));
+    app.use('/compartilhado', express.static(path.join(__dirname, 'compartilhado')));
+    app.get('/nucleo/chip8.js', (req, res) => res.sendFile(path.join(PASTA_NUCLEO, 'chip8.js')));
+    app.get('/nucleo/chip8.wasm', (req, res) => res.sendFile(path.join(PASTA_NUCLEO, 'chip8.wasm')));
+
+    // Páginas
+    app.get('/', (req, res) => laboratorio.abrir(req, res));
+    app.get('/desafios', (req, res) => desafios.listar(req, res));
+    app.get('/desafios/:id', (req, res) => desafios.abrir(req, res));
+    app.post('/desafios/:id/submeter', (req, res) => submissoes.submeter(req, res));
+
+    app.listen(PORTA, () => {
+        console.log(`Laboratório em http://localhost:${PORTA}`);
+    });
+}
+
+iniciar();

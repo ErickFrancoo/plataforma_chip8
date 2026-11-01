@@ -1,0 +1,19 @@
+<%# Topo de todas as páginas. Recebe: pagina ('laboratorio' ou 'desafios') e comPerfil (true ou false). %>
+<header class="topo">
+    <div class="marca">
+        <span class="logo"></span>
+        <h1>CHIP-8 LAB</h1>
+    </div>
+    <nav class="menu">
+        <a href="/" class="<%= pagina === 'laboratorio' ? 'ativo' : '' %>">Laboratório</a>
+        <a href="/desafios" class="<%= pagina === 'desafios' ? 'ativo' : '' %>">Desafios</a>
+    </nav>
+    <% if (comPerfil) { %>
+        <label class="perfil">Perfil
+            <select id="perfil">
+                <option value="original" selected>CHIP-8 original</option>
+                <option value="moderno">SUPER-CHIP (jogos mais novos)</option>
+            </select>
+        </label>
+    <% } %>
+</header>

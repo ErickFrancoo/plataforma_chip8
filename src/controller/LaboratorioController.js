@@ -2,7 +2,7 @@
 // Os três acontecem no navegador, então o controller só entrega a página do laboratório.
 class LaboratorioController {
     abrir(req, res) {
-        res.render('laboratorio');
+        res.render('laboratorio', { desafio: null }); // laboratório livre: sem desafio
     }
 }
 

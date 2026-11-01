@@ -1,0 +1,61 @@
+<%# Resultado de uma submissão (UC09 e UC10). Recebe: desafio, resultado (ou null) e erros de digitação. %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resultado · <%= desafio.titulo %> · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'desafios', comPerfil: false }) %>
+
+    <main class="pagina">
+        <p class="trilha">
+            <a href="/desafios">Desafios</a> ›
+            <a href="/desafios/<%= desafio.id %>"><%= desafio.titulo %></a> › Resultado
+        </p>
+
+        <% if (erros.length > 0) { %>
+            <div class="resultado reprovado">
+                <span class="rotulo">RESULTADO</span>
+                <h2>O programa tem erros de digitação</h2>
+                <p>Ele não chegou a ser executado.</p>
+                <ul>
+                    <% for (const erro of erros) { %>
+                        <li><%= erro %></li>
+                    <% } %>
+                </ul>
+            </div>
+        <% } else if (resultado.aprovado) { %>
+            <div class="resultado aprovado">
+                <span class="rotulo">RESULTADO</span>
+                <h2>Aprovado!</h2>
+                <p><%= resultado.motivo %></p>
+                <ul>
+                    <% for (const condicao of desafio.condicoes) { %>
+                        <li>✓ <%= condicao.descricao() %></li>
+                    <% } %>
+                </ul>
+            </div>
+        <% } else { %>
+            <div class="resultado reprovado">
+                <span class="rotulo">RESULTADO</span>
+                <h2>Reprovado</h2>
+                <p><%= resultado.motivo %></p>
+                <ul>
+                    <% for (const falha of resultado.falhas) { %>
+                        <li>✗ <%= falha.texto() %></li>
+                    <% } %>
+                </ul>
+            </div>
+        <% } %>
+
+        <div class="acoes">
+            <a class="principal" href="/desafios/<%= desafio.id %>">Tentar de novo</a>
+            <a class="chip" href="/desafios">Ver outros desafios</a>
+        </div>
+    </main>
+</body>
+</html>

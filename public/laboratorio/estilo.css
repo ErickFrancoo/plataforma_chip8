@@ -13,10 +13,13 @@
     --mudou: #ffd2a8;
     --mudou-texto: #8a4a12;
     --erro: #a32d2d;
+    --reprovado-fundo: #ffe9d6;
+    --reprovado-borda: #c47a3a;
     --tela-fundo: #0f380f;
     --tela-pixel: #9bbc0f;
     --moldura: #4a5a3a;
 
+    --fonte-texto: 'Segoe UI', Calibri, Arial, sans-serif;
     --fonte-pixel: 'Silkscreen', Consolas, monospace;
     --fonte-codigo: Consolas, 'Courier New', monospace;
     --altura-programa: 300px;
@@ -24,7 +27,7 @@
 
 body {
     margin: 0;
-    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    font-family: var(--fonte-texto);
     color: var(--texto);
     background: var(--fundo);
 }
@@ -96,8 +99,8 @@ h1 {
     color: var(--texto);
 }
 
-/* Organização da página: duas colunas, e uma só em janelas estreitas */
-main {
+/* Organização do laboratório: duas colunas, e uma só em janelas estreitas */
+main.laboratorio {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
     gap: 20px;
@@ -255,6 +258,7 @@ kbd {
 .acoes {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 6px;
 }
 
@@ -264,7 +268,7 @@ kbd {
 
 .chip {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 6px 14px;
     border-radius: 999px;
     background: var(--verde-claro);
     color: var(--verde-escuro);
@@ -359,7 +363,7 @@ textarea {
     border-radius: 12px;
 }
 
-.agora .rotulo {
+.rotulo {
     font-family: var(--fonte-pixel);
     font-size: 10px;
     color: var(--verde);
@@ -396,9 +400,137 @@ body:not(.editando) #editor {
     display: none;
 }
 
+/* Menu do topo */
+.menu {
+    display: flex;
+    gap: 6px;
+}
+
+.menu a {
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: var(--verde-claro);
+    color: var(--verde-escuro);
+    text-decoration: none;
+}
+
+.menu a.ativo {
+    background: var(--verde);
+    color: white;
+}
+
+/* Desafios: lista, enunciado e resultado */
+.pagina {
+    max-width: 900px;
+    padding: 0 32px 32px;
+}
+
+.pagina h2,
+.enunciado h2,
+.resultado h2 {
+    margin: 4px 0;
+}
+
+.trilha {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--suave);
+}
+
+.trilha a {
+    color: var(--verde);
+}
+
+.lista-desafios {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.cartao-desafio {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.cartao-desafio:hover {
+    transform: translateY(-2px);
+    border-color: var(--verde);
+}
+
+.detalhe {
+    font-size: 13px;
+    color: var(--suave);
+}
+
+.enunciado p {
+    margin: 4px 0;
+}
+
+.para-passar {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: 1.5px dashed var(--verde);
+    border-radius: 12px;
+    font-family: var(--fonte-codigo);
+}
+
+.para-passar .detalhe {
+    font-family: var(--fonte-texto);
+}
+
+#form-submeter {
+    margin-left: auto;
+}
+
+a.principal,
+a.chip {
+    text-decoration: none;
+}
+
+.resultado {
+    padding: 16px 20px;
+    border: 1px solid;
+    border-radius: 16px;
+}
+
+.resultado ul {
+    margin: 8px 0 0;
+    padding-left: 0;
+    list-style: none; /* o ✓ ou o ✗ já marcam cada item */
+}
+
+.pagina .acoes {
+    margin-top: 16px;
+}
+
+.resultado.aprovado {
+    background: var(--verde-claro);
+    border-color: var(--verde);
+    color: var(--verde-escuro);
+}
+
+.resultado.reprovado {
+    background: var(--reprovado-fundo);
+    border-color: var(--reprovado-borda);
+    color: var(--mudou-texto);
+}
+
+.resultado.reprovado .rotulo {
+    color: var(--mudou-texto);
+}
+
 @media (max-width: 860px) {
-    main {
+    main.laboratorio {
         grid-template-columns: 1fr;
+        padding: 0 16px 24px;
+    }
+
+    .pagina {
         padding: 0 16px 24px;
     }
 

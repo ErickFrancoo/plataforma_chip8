@@ -1,28 +1,18 @@
+<%# O laboratório. Sem desafio, é o laboratório livre; com desafio, mostra o enunciado e o botão de submeter. %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laboratório CHIP-8</title>
+    <title><%= desafio ? desafio.titulo + ' · ' : '' %>Laboratório CHIP-8</title>
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/laboratorio/estilo.css">
 </head>
-<body class="editando">
-    <header class="topo">
-        <div class="marca">
-            <span class="logo"></span>
-            <h1>CHIP-8 LAB</h1>
-        </div>
-        <p class="subtitulo">Escreva um programa em hexadecimal e veja a CPU funcionando.</p>
-        <label class="perfil">Perfil
-            <select id="perfil">
-                <option value="original" selected>CHIP-8 original</option>
-                <option value="moderno">SUPER-CHIP (jogos mais novos)</option>
-            </select>
-        </label>
-    </header>
+<body class="editando" data-desafio="<%= desafio ? desafio.id : '' %>">
+    <%# Na página do desafio não há escolha de perfil: vale o original, o mesmo do verificador %>
+    <%- include('parciais/topo', { pagina: desafio ? 'desafios' : 'laboratorio', comPerfil: !desafio }) %>
 
-    <main>
+    <main class="laboratorio">
         <section class="cartao maquina">
             <div class="moldura">
                 <canvas id="tela" width="640" height="320"></canvas>
@@ -73,7 +63,23 @@
         </section>
 
         <section class="cartao programa">
-            <div id="exemplos" class="chips"></div>
+            <% if (desafio) { %>
+                <p class="trilha"><a href="/desafios">Desafios</a> › <%= desafio.titulo %></p>
+                <div class="enunciado">
+                    <span class="rotulo">DESAFIO</span>
+                    <h2><%= desafio.titulo %></h2>
+                    <p><%= desafio.enunciado %></p>
+                    <div class="para-passar">
+                        <span class="rotulo">PARA PASSAR</span>
+                        <% for (const condicao of desafio.condicoes) { %>
+                            <div><%= condicao.descricao() %></div>
+                        <% } %>
+                        <div class="detalhe">O programa precisa terminar em até <%= desafio.limiteDeInstrucoes %> instruções.</div>
+                    </div>
+                </div>
+            <% } else { %>
+                <div id="exemplos" class="chips"></div>
+            <% } %>
 
             <textarea id="editor" spellcheck="false"></textarea>
 
@@ -94,6 +100,13 @@
                 <label class="chip">Abrir .ch8
                     <input type="file" id="arquivo" accept=".ch8" hidden>
                 </label>
+                <% if (desafio) { %>
+                    <%# O formulário envia só o texto do programa; o servidor executa e decide %>
+                    <form id="form-submeter" method="post" action="/desafios/<%= desafio.id %>/submeter">
+                        <input type="hidden" name="programa" id="programa-enviado">
+                        <button type="submit" class="principal">Submeter solução</button>
+                    </form>
+                <% } %>
             </div>
         </section>
     </main>

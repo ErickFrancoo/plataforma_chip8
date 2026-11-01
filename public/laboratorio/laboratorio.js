@@ -5,6 +5,9 @@
 //
 // A página tem dois modos: editando (o texto do programa) e executando (a listagem com a
 // próxima instrução destacada). O modo fica na classe "editando" do body.
+//
+// A mesma página serve ao laboratório livre e aos desafios. Num desafio, o body traz o id dele
+// (data-desafio), não há exemplos nem escolha de perfil, e o programa é enviado ao servidor.
 
 const QUADROS_POR_SEGUNDO = 60;
 const INSTRUCOES_POR_QUADRO = [1, 5, 10, 25, 50, 100]; // as posições da barra de velocidade
@@ -19,6 +22,14 @@ const MOTIVOS_DE_PARADA = [
     'o registrador I aponta para fora da memória',
     'o PC passou do fim da memória'
 ];
+
+const desafioId = document.body.dataset.desafio; // vazio no laboratório livre
+
+const TEXTO_INICIAL_DO_DESAFIO =
+`// Escreva aqui a sua solução, uma instrução de 4 dígitos hexadecimais por vez.
+// Teste com Executar e, quando estiver pronta, clique em Submeter solução.
+// Lembre-se de terminar com um salto para o próprio endereço.
+`;
 
 const editor = document.getElementById('editor');
 const listaDeErros = document.getElementById('erros');
@@ -99,8 +110,9 @@ function editar() {
     definirModo(true);
 }
 
+// Nos desafios não há seletor de perfil: vale o original, o mesmo que o verificador usa
 function aplicarPerfil() {
-    if (seletorDePerfil.value === 'original') {
+    if (seletorDePerfil === null || seletorDePerfil.value === 'original') {
         usarPerfilOriginal(chip);
     } else {
         usarPerfilModerno(chip);
@@ -139,6 +151,10 @@ function quadro() {
 }
 
 function textoDaSituacao() {
+    if (programa === null && desafioId) {
+        return 'Pronto. Escreva a sua solução e clique em Executar para testar.';
+    }
+
     if (programa === null) {
         return 'Pronto. Escolha um exemplo ou escreva um programa e clique em Executar.';
     }
@@ -209,6 +225,19 @@ function escolherExemplo(posicao) {
     });
 }
 
+// Num desafio, o editor começa com a última solução do aluno (guardada enquanto a aba está aberta)
+// ou com o texto de orientação
+function prepararDesafio() {
+    const salva = sessionStorage.getItem('solucao-desafio-' + desafioId);
+    editor.value = salva !== null ? salva : TEXTO_INICIAL_DO_DESAFIO;
+}
+
+// Ao submeter, o texto do editor vai no formulário e fica guardado para o "Tentar de novo"
+function enviarSolucao() {
+    document.getElementById('programa-enviado').value = editor.value;
+    sessionStorage.setItem('solucao-desafio-' + desafioId, editor.value);
+}
+
 // Um arquivo .ch8 vira texto no editor e já começa a executar
 function abrirArquivo(arquivo) {
     arquivo.arrayBuffer().then((conteudo) => {
@@ -222,8 +251,15 @@ botaoPausar.addEventListener('click', () => (executando ? pausar() : continuar()
 botaoPasso.addEventListener('click', proximaInstrucao);
 botaoReiniciar.addEventListener('click', reiniciar);
 botaoEditar.addEventListener('click', editar);
-seletorDePerfil.addEventListener('change', aplicarPerfil);
 barraDeVelocidade.addEventListener('input', mostrarVelocidade);
+
+if (seletorDePerfil !== null) {
+    seletorDePerfil.addEventListener('change', aplicarPerfil);
+}
+
+if (desafioId) {
+    document.getElementById('form-submeter').addEventListener('submit', enviarSolucao);
+}
 document.getElementById('arquivo').addEventListener('change', (evento) => {
     if (evento.target.files.length > 0) {
         abrirArquivo(evento.target.files[0]);
@@ -235,7 +271,13 @@ carregarNucleo().then((nucleo) => {
     modulo = nucleo;
     chip = new modulo.Chip8();
     aplicarPerfil();
-    preencherExemplos();
+
+    if (desafioId) {
+        prepararDesafio();
+    } else {
+        preencherExemplos();
+    }
+
     mostrarVelocidade();
     botaoExecutar.disabled = false;
     setInterval(quadro, 1000 / QUADROS_POR_SEGUNDO);
