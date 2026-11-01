@@ -78,5 +78,5 @@ function hex2(valor) {
 
 // No Node (testes e servidor) as funções são exportadas; no navegador elas ficam disponíveis direto.
 if (typeof module !== 'undefined') {
-    module.exports = { converterPrograma, textoDoPrograma, ENDERECO_INICIAL, TAMANHO_MAXIMO };
+    module.exports = { converterPrograma, textoDoPrograma, hex2, ENDERECO_INICIAL, TAMANHO_MAXIMO };
 }
