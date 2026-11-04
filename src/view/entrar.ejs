@@ -1,0 +1,57 @@
+<%# Entrar (UC08) e cadastrar-se (UC07). Recebe: erroAoEntrar, errosDoCadastro e valores já digitados. %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrar · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'entrar', comPerfil: false }) %>
+
+    <main class="pagina">
+        <h2>Entrar ou criar uma conta</h2>
+        <p class="subtitulo">Com uma conta você submete soluções aos desafios e acompanha o seu progresso.</p>
+
+        <div class="contas">
+            <form class="cartao formulario" method="post" action="/entrar">
+                <h3>Já tenho conta</h3>
+                <label>E-mail
+                    <input type="email" name="email" value="<%= valores.emailEntrar %>" required>
+                </label>
+                <label>Senha
+                    <input type="password" name="senha" required>
+                </label>
+                <% if (erroAoEntrar) { %>
+                    <p class="erro"><%= erroAoEntrar %></p>
+                <% } %>
+                <button class="principal" type="submit">Entrar</button>
+            </form>
+
+            <form class="cartao formulario" method="post" action="/cadastrar">
+                <h3>Quero me cadastrar</h3>
+                <label>Nome
+                    <input type="text" name="nome" value="<%= valores.nome %>" required>
+                </label>
+                <label>E-mail
+                    <input type="email" name="email" value="<%= valores.emailCadastro %>" required>
+                </label>
+                <label>Senha
+                    <input type="password" name="senha" minlength="6" required>
+                    <span class="detalhe">Pelo menos 6 caracteres.</span>
+                </label>
+                <% if (errosDoCadastro.length > 0) { %>
+                    <ul class="erros">
+                        <% for (const erro of errosDoCadastro) { %>
+                            <li><%= erro %></li>
+                        <% } %>
+                    </ul>
+                <% } %>
+                <button class="principal" type="submit">Criar conta</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

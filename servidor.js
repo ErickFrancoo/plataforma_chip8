@@ -1,10 +1,15 @@
-// Servidor da plataforma: entrega o laboratório e os desafios, e verifica as soluções enviadas.
+// Servidor da plataforma: entrega o laboratório e os desafios, verifica as soluções enviadas
+// e cuida das contas de usuário.
 const path = require('path');
 const express = require('express');
+const session = require('express-session');
 const LaboratorioController = require('./src/controller/LaboratorioController');
 const DesafioController = require('./src/controller/DesafioController');
 const SubmissaoController = require('./src/controller/SubmissaoController');
+const ContaController = require('./src/controller/ContaController');
 const DesafioRepositorio = require('./src/model/dados/DesafioRepositorio');
+const UsuarioRepositorio = require('./src/model/dados/UsuarioRepositorio');
+const { abrirBanco } = require('./src/model/dados/banco');
 const Nucleo = require('./src/model/verificacao/Nucleo');
 const Verificador = require('./src/model/verificacao/Verificador');
 
@@ -15,10 +20,12 @@ const PASTA_NUCLEO = path.join(__dirname, 'nucleo', 'build');
 async function iniciar() {
     const nucleo = await Nucleo.carregar();
     const repositorio = new DesafioRepositorio();
+    const usuarios = new UsuarioRepositorio(abrirBanco());
 
     const laboratorio = new LaboratorioController();
     const desafios = new DesafioController(repositorio);
     const submissoes = new SubmissaoController(repositorio, new Verificador(nucleo));
+    const contas = new ContaController(usuarios);
 
     const app = express();
     app.set('view engine', 'ejs');
@@ -31,8 +38,30 @@ async function iniciar() {
     app.get('/nucleo/chip8.js', (req, res) => res.sendFile(path.join(PASTA_NUCLEO, 'chip8.js')));
     app.get('/nucleo/chip8.wasm', (req, res) => res.sendFile(path.join(PASTA_NUCLEO, 'chip8.wasm')));
 
+    // Sessão: depois do login, o navegador se identifica sozinho em cada pedido (por um cookie)
+    app.use(session({
+        secret: process.env.SEGREDO_DA_SESSAO || 'segredo-de-desenvolvimento', // troque ao publicar
+        resave: false,
+        saveUninitialized: false
+    }));
+
+    // Deixa quem está logado (ou null) disponível em todas as páginas, com o nome "usuario"
+    app.use((req, res, next) => {
+        res.locals.usuario = null;
+
+        if (req.session.usuarioId) {
+            res.locals.usuario = usuarios.buscarPorId(req.session.usuarioId) || null;
+        }
+
+        next();
+    });
+
     // Páginas
     app.get('/', (req, res) => laboratorio.abrir(req, res));
+    app.get('/entrar', (req, res) => contas.abrir(req, res));
+    app.post('/entrar', (req, res) => contas.entrar(req, res));
+    app.post('/cadastrar', (req, res) => contas.cadastrar(req, res));
+    app.post('/sair', (req, res) => contas.sair(req, res));
     app.get('/desafios', (req, res) => desafios.listar(req, res));
     app.get('/desafios/:id', (req, res) => desafios.abrir(req, res));
     app.post('/desafios/:id/submeter', (req, res) => submissoes.submeter(req, res));

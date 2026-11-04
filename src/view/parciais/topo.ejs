@@ -1,4 +1,5 @@
-<%# Topo de todas as páginas. Recebe: pagina ('laboratorio' ou 'desafios') e comPerfil (true ou false). %>
+<%# Topo de todas as páginas. Recebe: pagina ('laboratorio', 'desafios' ou 'entrar') e comPerfil (true ou false).
+    "usuario" vem do servidor: quem está logado, ou null. %>
 <header class="topo">
     <div class="marca">
         <span class="logo"></span>
@@ -8,12 +9,22 @@
         <a href="/" class="<%= pagina === 'laboratorio' ? 'ativo' : '' %>">Laboratório</a>
         <a href="/desafios" class="<%= pagina === 'desafios' ? 'ativo' : '' %>">Desafios</a>
     </nav>
-    <% if (comPerfil) { %>
-        <label class="perfil">Perfil
-            <select id="perfil">
-                <option value="original" selected>CHIP-8 original</option>
-                <option value="moderno">SUPER-CHIP (jogos mais novos)</option>
-            </select>
-        </label>
-    <% } %>
+    <div class="lado-direito">
+        <% if (comPerfil) { %>
+            <label class="perfil">Perfil
+                <select id="perfil">
+                    <option value="original" selected>CHIP-8 original</option>
+                    <option value="moderno">SUPER-CHIP (jogos mais novos)</option>
+                </select>
+            </label>
+        <% } %>
+        <% if (usuario) { %>
+            <span class="usuario-logado"><%= usuario.nome %></span>
+            <form method="post" action="/sair">
+                <button class="chip" type="submit">Sair</button>
+            </form>
+        <% } else if (pagina !== 'entrar') { %>
+            <a class="chip" href="/entrar">Entrar</a>
+        <% } %>
+    </div>
 </header>
