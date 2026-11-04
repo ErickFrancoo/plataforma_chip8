@@ -1,6 +1,9 @@
 # dependências instaladas pelo npm install
 node_modules/
 
+# banco de dados local (contas e senhas de teste não vão para o GitHub)
+banco-de-dados/
+
 # testador nativo, gerado por nucleo/compilar.bat
 nucleo/build/*.exe
 
