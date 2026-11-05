@@ -1,4 +1,4 @@
-<%# Lista de desafios (UC05). Recebe: desafios. %>
+<%# Lista de desafios (UC05). Recebe: desafios e resolvidos (os ids dos que quem entrou já resolveu). %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -21,6 +21,9 @@
                     <span class="rotulo"><%= desafio.conceito.toUpperCase() %></span>
                     <strong><%= desafio.titulo %></strong>
                     <span class="detalhe"><%= desafio.dificuldade %></span>
+                    <% if (resolvidos.includes(desafio.id)) { %>
+                        <span class="resolvido">✓ Resolvido</span>
+                    <% } %>
                 </a>
             <% } %>
         </div>

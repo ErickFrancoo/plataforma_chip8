@@ -2,37 +2,45 @@
 // A sessão guarda só o id de quem entrou; o resto é buscado no banco a cada pedido.
 const { Usuario, PAPEL_APRENDIZ } = require('../model/dominio/Usuario');
 
+// Depois de entrar, a pessoa volta para a página de onde veio ("voltar"), mas só se for a página de
+// um desafio, como /desafios/2. Assim ninguém usa o link de entrar para mandar a pessoa a outro site.
+function enderecoDeVolta(voltar) {
+    return /^\/desafios\/\d+$/.test(voltar) ? voltar : '/desafios';
+}
+
 class ContaController {
     constructor(usuarios) {
         this.usuarios = usuarios;
     }
 
     abrir(req, res) {
-        this.mostrarPagina(res, null, [], {});
+        this.mostrarPagina(res, null, [], { voltar: req.query.voltar || '' });
     }
 
     entrar(req, res) {
         const email = Usuario.normalizarEmail(req.body.email || '');
+        const voltar = req.body.voltar || '';
         const usuario = this.usuarios.buscarPorEmail(email);
 
         // A mesma mensagem para e-mail ou senha errados, para não revelar quais e-mails têm conta
         if (usuario === undefined || !usuario.conferirSenha(req.body.senha || '')) {
-            this.mostrarPagina(res, 'E-mail ou senha incorretos.', [], { emailEntrar: email });
+            this.mostrarPagina(res, 'E-mail ou senha incorretos.', [], { emailEntrar: email, voltar: voltar });
             return;
         }
 
         if (usuario.bloqueado) {
-            this.mostrarPagina(res, 'Esta conta está bloqueada.', [], { emailEntrar: email });
+            this.mostrarPagina(res, 'Esta conta está bloqueada.', [], { emailEntrar: email, voltar: voltar });
             return;
         }
 
-        this.iniciarSessao(req, res, usuario);
+        this.iniciarSessao(req, res, usuario, voltar);
     }
 
     cadastrar(req, res) {
         const nome = (req.body.nome || '').trim();
         const email = Usuario.normalizarEmail(req.body.email || '');
         const senha = req.body.senha || '';
+        const voltar = req.body.voltar || '';
 
         const erros = Usuario.validarCadastro(nome, email, senha);
 
@@ -41,13 +49,13 @@ class ContaController {
         }
 
         if (erros.length > 0) {
-            this.mostrarPagina(res, null, erros, { nome: nome, emailCadastro: email });
+            this.mostrarPagina(res, null, erros, { nome: nome, emailCadastro: email, voltar: voltar });
             return;
         }
 
         // Toda conta nova é de aprendiz; só um administrador promove alguém a instrutor
         const novo = new Usuario(null, nome, email, Usuario.resumirSenha(senha), PAPEL_APRENDIZ, false);
-        this.iniciarSessao(req, res, this.usuarios.salvar(novo));
+        this.iniciarSessao(req, res, this.usuarios.salvar(novo), voltar);
     }
 
     sair(req, res) {
@@ -56,10 +64,10 @@ class ContaController {
 
     // Guarda na sessão quem entrou. regenerate troca a sessão por uma nova, para que ninguém
     // consiga aproveitar uma sessão criada antes do login.
-    iniciarSessao(req, res, usuario) {
+    iniciarSessao(req, res, usuario, voltar) {
         req.session.regenerate(() => {
             req.session.usuarioId = usuario.id;
-            res.redirect('/desafios');
+            res.redirect(enderecoDeVolta(voltar));
         });
     }
 
@@ -69,7 +77,7 @@ class ContaController {
         res.status(status).render('entrar', {
             erroAoEntrar: erroAoEntrar,
             errosDoCadastro: errosDoCadastro,
-            valores: { emailEntrar: '', nome: '', emailCadastro: '', ...valores }
+            valores: { emailEntrar: '', nome: '', emailCadastro: '', voltar: '', ...valores }
         });
     }
 }

@@ -38,6 +38,13 @@
                         <li>✓ <%= condicao.descricao() %></li>
                     <% } %>
                 </ul>
+                <% if (!usuario) { %>
+                    <%# O visitante resolve, mas só quem entrou fica com o desafio guardado %>
+                    <p class="aviso">
+                        Você não entrou, então este desafio não foi guardado como resolvido.
+                        <a href="/entrar?voltar=/desafios/<%= desafio.id %>">Entre</a> e submeta de novo para guardar.
+                    </p>
+                <% } %>
             </div>
         <% } else { %>
             <div class="resultado reprovado">

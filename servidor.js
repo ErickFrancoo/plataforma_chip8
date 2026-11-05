@@ -9,6 +9,7 @@ const SubmissaoController = require('./src/controller/SubmissaoController');
 const ContaController = require('./src/controller/ContaController');
 const DesafioRepositorio = require('./src/model/dados/DesafioRepositorio');
 const UsuarioRepositorio = require('./src/model/dados/UsuarioRepositorio');
+const ResolvidoRepositorio = require('./src/model/dados/ResolvidoRepositorio');
 const { abrirBanco } = require('./src/model/dados/banco');
 const Nucleo = require('./src/model/verificacao/Nucleo');
 const Verificador = require('./src/model/verificacao/Verificador');
@@ -20,11 +21,13 @@ const PASTA_NUCLEO = path.join(__dirname, 'nucleo', 'build');
 async function iniciar() {
     const nucleo = await Nucleo.carregar();
     const repositorio = new DesafioRepositorio();
-    const usuarios = new UsuarioRepositorio(abrirBanco());
+    const banco = abrirBanco();
+    const usuarios = new UsuarioRepositorio(banco);
+    const resolvidos = new ResolvidoRepositorio(banco);
 
     const laboratorio = new LaboratorioController();
-    const desafios = new DesafioController(repositorio);
-    const submissoes = new SubmissaoController(repositorio, new Verificador(nucleo));
+    const desafios = new DesafioController(repositorio, resolvidos);
+    const submissoes = new SubmissaoController(repositorio, new Verificador(nucleo), resolvidos);
     const contas = new ContaController(usuarios);
 
     const app = express();

@@ -1,4 +1,4 @@
-<%# Entrar (UC08) e cadastrar-se (UC07). Recebe: erroAoEntrar, errosDoCadastro e valores já digitados. %>
+<%# Entrar (UC08) e cadastrar-se (UC07). Recebe: erroAoEntrar, errosDoCadastro e valores (o que já foi digitado e "voltar"). %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -16,8 +16,10 @@
         <p class="subtitulo">Com uma conta você submete soluções aos desafios e acompanha o seu progresso.</p>
 
         <div class="contas">
+            <%# "voltar" leva a pessoa de volta ao desafio de onde ela veio %>
             <form class="cartao formulario" method="post" action="/entrar">
                 <h3>Já tenho conta</h3>
+                <input type="hidden" name="voltar" value="<%= valores.voltar %>">
                 <label>E-mail
                     <input type="email" name="email" value="<%= valores.emailEntrar %>" required>
                 </label>
@@ -32,6 +34,7 @@
 
             <form class="cartao formulario" method="post" action="/cadastrar">
                 <h3>Quero me cadastrar</h3>
+                <input type="hidden" name="voltar" value="<%= valores.voltar %>">
                 <label>Nome
                     <input type="text" name="nome" value="<%= valores.nome %>" required>
                 </label>

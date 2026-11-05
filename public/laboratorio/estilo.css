@@ -502,6 +502,17 @@ body:not(.editando) #editor {
     margin-left: auto;
 }
 
+.resolvido {
+    align-self: flex-start;
+    margin-top: 4px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--verde-claro);
+    color: var(--verde-escuro);
+    font-size: 13px;
+    font-weight: 600;
+}
+
 a.principal,
 a.chip {
     text-decoration: none;
@@ -537,6 +548,18 @@ a.chip {
 
 .resultado.reprovado .rotulo {
     color: var(--mudou-texto);
+}
+
+.resultado .aviso {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--verde);
+    font-size: 14px;
+}
+
+.resultado .aviso a {
+    color: inherit;
+    font-weight: 600;
 }
 
 /* Contas: entrar e cadastrar */

@@ -3,9 +3,10 @@
 const { converterPrograma } = require('../../compartilhado/hex');
 
 class SubmissaoController {
-    constructor(repositorio, verificador) {
+    constructor(repositorio, verificador, resolvidos) {
         this.repositorio = repositorio;
         this.verificador = verificador;
+        this.resolvidos = resolvidos;
     }
 
     submeter(req, res) {
@@ -17,7 +18,8 @@ class SubmissaoController {
         }
 
         // A mesma conversão do editor do laboratório: com erro de digitação, o programa nem executa
-        const programa = converterPrograma(req.body.programa || '');
+        const texto = req.body.programa || '';
+        const programa = converterPrograma(texto);
 
         if (programa.erros.length > 0) {
             res.render('resultado', { desafio: desafio, resultado: null, erros: programa.erros });
@@ -25,6 +27,14 @@ class SubmissaoController {
         }
 
         const resultado = this.verificador.verificar(programa.bytes, desafio);
+
+        // Qualquer pessoa pode submeter, mas só fica guardado o desafio resolvido por quem entrou
+        const usuario = res.locals.usuario;
+
+        if (resultado.aprovado && usuario !== null) {
+            this.resolvidos.registrar(usuario.id, desafio.id, texto);
+        }
+
         res.render('resultado', { desafio: desafio, resultado: resultado, erros: [] });
     }
 }
