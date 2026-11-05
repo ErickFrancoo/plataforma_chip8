@@ -1,8 +1,10 @@
 // Programas de exemplo do laboratório. Cada um mostra uma parte da CPU funcionando.
 // Cada instrução tem 4 dígitos hexadecimais; o que vem depois de // é o comentário que a listagem mostra.
+// O id abre o exemplo pelo endereço, como /?exemplo=soma (usado pelas páginas de Aprender).
 
 const EXEMPLOS = [
     {
+        id: 'soma',
         nome: 'Soma 3 + 7 (registradores)',
         rotulo: 'Soma',
         codigo:
@@ -14,6 +16,7 @@ const EXEMPLOS = [
 1208  // salta para si mesmo: fim do programa`
     },
     {
+        id: 'digitos',
         nome: 'Desenhar dígitos (fonte e tela)',
         rotulo: 'Dígitos',
         codigo:
@@ -31,6 +34,7 @@ DBC5  // desenha 5 linhas a partir de I na posição (VB, VC)
 1214  // fim do programa`
     },
     {
+        id: 'carinha',
         nome: 'Desenho próprio (dados na memória)',
         rotulo: 'Carinha',
         codigo:
@@ -48,6 +52,7 @@ A599  // dados  10100101  10011001
 423C  // dados  01000010  00111100`
     },
     {
+        id: 'contador',
         nome: 'Contador com timer (1 por segundo)',
         rotulo: 'Contador',
         codigo:
@@ -70,6 +75,7 @@ F107  // V1 = valor atual do timer
 121C  // fim do programa`
     },
     {
+        id: 'tecla',
         nome: 'Tecla pressionada (teclado)',
         rotulo: 'Tecla',
         codigo:

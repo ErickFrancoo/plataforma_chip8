@@ -7,7 +7,9 @@ const LaboratorioController = require('./src/controller/LaboratorioController');
 const DesafioController = require('./src/controller/DesafioController');
 const SubmissaoController = require('./src/controller/SubmissaoController');
 const ContaController = require('./src/controller/ContaController');
+const ConteudoController = require('./src/controller/ConteudoController');
 const DesafioRepositorio = require('./src/model/dados/DesafioRepositorio');
+const ConteudoRepositorio = require('./src/model/dados/ConteudoRepositorio');
 const UsuarioRepositorio = require('./src/model/dados/UsuarioRepositorio');
 const ResolvidoRepositorio = require('./src/model/dados/ResolvidoRepositorio');
 const { abrirBanco } = require('./src/model/dados/banco');
@@ -29,6 +31,7 @@ async function iniciar() {
     const desafios = new DesafioController(repositorio, resolvidos);
     const submissoes = new SubmissaoController(repositorio, new Verificador(nucleo), resolvidos);
     const contas = new ContaController(usuarios);
+    const conteudos = new ConteudoController(new ConteudoRepositorio());
 
     const app = express();
     app.set('view engine', 'ejs');
@@ -65,6 +68,8 @@ async function iniciar() {
     app.post('/entrar', (req, res) => contas.entrar(req, res));
     app.post('/cadastrar', (req, res) => contas.cadastrar(req, res));
     app.post('/sair', (req, res) => contas.sair(req, res));
+    app.get('/aprender', (req, res) => conteudos.listar(req, res));
+    app.get('/aprender/:id', (req, res) => conteudos.abrir(req, res));
     app.get('/desafios', (req, res) => desafios.listar(req, res));
     app.get('/desafios/:id', (req, res) => desafios.abrir(req, res));
     app.post('/desafios/:id/submeter', (req, res) => submissoes.submeter(req, res));

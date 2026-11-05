@@ -456,14 +456,17 @@ body:not(.editando) #editor {
     color: var(--verde);
 }
 
-.lista-desafios {
+/* As listas de desafios e de conteúdos usam os mesmos cartões */
+.lista-desafios,
+.lista-conteudos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 14px;
     margin-top: 16px;
 }
 
-.cartao-desafio {
+.cartao-desafio,
+.cartao-conteudo {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -472,7 +475,8 @@ body:not(.editando) #editor {
     transition: transform 0.15s, border-color 0.15s;
 }
 
-.cartao-desafio:hover {
+.cartao-desafio:hover,
+.cartao-conteudo:hover {
     transform: translateY(-2px);
     border-color: var(--verde);
 }
@@ -604,6 +608,74 @@ a.chip {
 .erro {
     margin: 0;
     color: var(--erro);
+}
+
+/* Aprender: a lista e o texto de cada página */
+.filtro {
+    margin-top: 12px;
+}
+
+.texto-conteudo {
+    max-width: 760px;
+    line-height: 1.55;
+}
+
+.texto-conteudo h3 {
+    margin: 22px 0 6px;
+    color: var(--verde-escuro);
+}
+
+.texto-conteudo code,
+.texto-conteudo pre {
+    font-family: var(--fonte-codigo);
+}
+
+.texto-conteudo pre {
+    padding: 10px 14px;
+    border: 1px solid var(--linha);
+    border-radius: 12px;
+    background: white;
+    overflow-x: auto;
+}
+
+.texto-conteudo table {
+    border-collapse: collapse;
+    background: var(--cartao);
+}
+
+.texto-conteudo th,
+.texto-conteudo td {
+    padding: 6px 12px;
+    border: 1px solid var(--linha);
+    text-align: left;
+    vertical-align: top;
+}
+
+.texto-conteudo th {
+    background: var(--verde-claro);
+}
+
+.experimente {
+    margin-top: 20px;
+    padding: 10px 14px;
+    border: 1.5px dashed var(--verde);
+    border-radius: 12px;
+}
+
+.experimente p {
+    margin: 4px 0 0;
+}
+
+.navegacao {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid var(--linha);
+}
+
+.navegacao a {
+    color: var(--verde);
 }
 
 @media (max-width: 860px) {

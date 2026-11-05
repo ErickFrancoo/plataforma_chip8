@@ -1,4 +1,4 @@
-<%# Topo de todas as páginas. Recebe: pagina ('laboratorio', 'desafios' ou 'entrar') e comPerfil (true ou false).
+<%# Topo de todas as páginas. Recebe: pagina ('laboratorio', 'aprender', 'desafios' ou 'entrar') e comPerfil (true ou false).
     "usuario" vem do servidor: quem está logado, ou null. %>
 <header class="topo">
     <div class="marca">
@@ -7,6 +7,7 @@
     </div>
     <nav class="menu">
         <a href="/" class="<%= pagina === 'laboratorio' ? 'ativo' : '' %>">Laboratório</a>
+        <a href="/aprender" class="<%= pagina === 'aprender' ? 'ativo' : '' %>">Aprender</a>
         <a href="/desafios" class="<%= pagina === 'desafios' ? 'ativo' : '' %>">Desafios</a>
     </nav>
     <div class="lado-direito">

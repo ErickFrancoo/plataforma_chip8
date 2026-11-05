@@ -200,7 +200,8 @@ function mostrarErros(erros) {
     }
 }
 
-// Um botão por exemplo; escolher um exemplo coloca o programa no editor, sem executar
+// Um botão por exemplo; escolher um exemplo coloca o programa no editor, sem executar.
+// O endereço pode pedir um exemplo, como /?exemplo=contador; senão, começa com o primeiro.
 function preencherExemplos() {
     for (let i = 0; i < EXEMPLOS.length; i++) {
         const botao = document.createElement('button');
@@ -212,7 +213,9 @@ function preencherExemplos() {
         botoesDeExemplo.appendChild(botao);
     }
 
-    escolherExemplo(0);
+    const pedido = new URLSearchParams(location.search).get('exemplo');
+    const posicao = EXEMPLOS.findIndex((exemplo) => exemplo.id === pedido);
+    escolherExemplo(posicao >= 0 ? posicao : 0);
 }
 
 function escolherExemplo(posicao) {

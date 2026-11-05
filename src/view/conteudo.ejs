@@ -1,0 +1,42 @@
+<%# Uma página de Aprender (UC04). Recebe: conteudo, e a página anterior e a próxima (ou undefined). %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= conteudo.titulo %> · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'aprender', comPerfil: false }) %>
+
+    <main class="pagina">
+        <p class="trilha"><a href="/aprender">Aprender</a> › <%= conteudo.titulo %></p>
+        <span class="rotulo">NÍVEL <%= conteudo.nivel %> · <%= conteudo.tema.toUpperCase() %></span>
+        <h2><%= conteudo.titulo %></h2>
+
+        <%# O texto é HTML escrito pela equipe em conteudos.js, por isso é mostrado como HTML, sem escapar %>
+        <article class="texto-conteudo">
+            <%- conteudo.texto %>
+        </article>
+
+        <div class="acoes">
+            <% for (const exemplo of conteudo.exemplos) { %>
+                <a class="principal" href="/?exemplo=<%= exemplo.id %>">Abrir o exemplo <%= exemplo.nome %> no laboratório</a>
+            <% } %>
+        </div>
+
+        <nav class="navegacao">
+            <% if (anterior) { %>
+                <a href="/aprender/<%= anterior.id %>">‹ <%= anterior.titulo %></a>
+            <% } else { %>
+                <span></span>
+            <% } %>
+            <% if (proximo) { %>
+                <a href="/aprender/<%= proximo.id %>"><%= proximo.titulo %> ›</a>
+            <% } %>
+        </nav>
+    </main>
+</body>
+</html>

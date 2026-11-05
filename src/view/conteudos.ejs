@@ -1,0 +1,36 @@
+<%# Lista das páginas de Aprender (UC04). Recebe: conteudos, temas e temaEscolhido ('' para todos). %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Aprender · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'aprender', comPerfil: false }) %>
+
+    <main class="pagina">
+        <h2>Aprender</h2>
+        <p class="subtitulo">Introdução ao CHIP-8: leia na ordem e experimente cada página no laboratório.</p>
+
+        <div class="chips filtro">
+            <a class="chip <%= temaEscolhido === '' ? 'ativo' : '' %>" href="/aprender">Todos</a>
+            <% for (const tema of temas) { %>
+                <a class="chip <%= temaEscolhido === tema ? 'ativo' : '' %>" href="/aprender?tema=<%= encodeURIComponent(tema) %>"><%= tema %></a>
+            <% } %>
+        </div>
+
+        <div class="lista-conteudos">
+            <% for (const conteudo of conteudos) { %>
+                <a class="cartao cartao-conteudo" href="/aprender/<%= conteudo.id %>">
+                    <span class="rotulo">NÍVEL <%= conteudo.nivel %> · <%= conteudo.tema.toUpperCase() %></span>
+                    <strong><%= conteudo.titulo %></strong>
+                    <span class="detalhe"><%= conteudo.resumo %></span>
+                </a>
+            <% } %>
+        </div>
+    </main>
+</body>
+</html>
