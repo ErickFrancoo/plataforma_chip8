@@ -14,6 +14,9 @@ function abrirBanco(arquivo = ARQUIVO_PADRAO) {
 
     const banco = new DatabaseSync(arquivo);
 
+    // O SQLite só confere as chaves estrangeiras (REFERENCES) quando isso é ligado
+    banco.exec('PRAGMA foreign_keys = ON');
+
     banco.exec(`
         CREATE TABLE IF NOT EXISTS usuarios (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,6 +25,18 @@ function abrirBanco(arquivo = ARQUIVO_PADRAO) {
             senha_hash TEXT    NOT NULL,
             papel      TEXT    NOT NULL,
             bloqueado  INTEGER NOT NULL DEFAULT 0
+        )
+    `);
+
+    // Uma linha por desafio resolvido. A chave é o par (usuário, desafio): cada um resolve um desafio uma vez só.
+    // Os desafios ainda ficam num arquivo, por isso desafio_id não aponta para outra tabela.
+    banco.exec(`
+        CREATE TABLE IF NOT EXISTS desafios_resolvidos (
+            usuario_id INTEGER NOT NULL REFERENCES usuarios (id),
+            desafio_id INTEGER NOT NULL,
+            programa   TEXT    NOT NULL,
+            data       TEXT    NOT NULL,
+            PRIMARY KEY (usuario_id, desafio_id)
         )
     `);
 
