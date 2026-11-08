@@ -12,7 +12,8 @@ class SubmissaoController {
     submeter(req, res) {
         const desafio = this.repositorio.buscar(Number(req.params.id));
 
-        if (desafio === undefined) {
+        // Um rascunho só recebe submissões dos instrutores, que testam o desafio antes de publicá-lo
+        if (desafio === undefined || !desafio.visivelPara(res.locals.usuario)) {
             res.status(404).send('Desafio não encontrado.');
             return;
         }

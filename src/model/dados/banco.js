@@ -28,12 +28,38 @@ function abrirBanco(arquivo = ARQUIVO_PADRAO) {
         )
     `);
 
+    // A situação é PUBLICADO (os aprendizes veem) ou RASCUNHO (só os instrutores veem)
+    banco.exec(`
+        CREATE TABLE IF NOT EXISTS desafios (
+            id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+            titulo                TEXT    NOT NULL,
+            enunciado             TEXT    NOT NULL,
+            conceito              TEXT    NOT NULL,
+            dificuldade           TEXT    NOT NULL,
+            limite_de_instrucoes  INTEGER NOT NULL,
+            solucao_de_referencia TEXT    NOT NULL,
+            situacao              TEXT    NOT NULL
+        )
+    `);
+
+    // As condições do resultado esperado: um desafio tem uma ou mais. Elas fazem parte do desafio,
+    // então ON DELETE CASCADE apaga as condições junto quando o desafio é excluído.
+    banco.exec(`
+        CREATE TABLE IF NOT EXISTS condicoes (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            desafio_id     INTEGER NOT NULL REFERENCES desafios (id) ON DELETE CASCADE,
+            tipo           TEXT    NOT NULL,
+            alvo           TEXT    NOT NULL,
+            valor_esperado INTEGER NOT NULL
+        )
+    `);
+
     // Uma linha por desafio resolvido. A chave é o par (usuário, desafio): cada um resolve um desafio uma vez só.
-    // Os desafios ainda ficam num arquivo, por isso desafio_id não aponta para outra tabela.
+    // Aqui não há ON DELETE CASCADE: um desafio que alguém já resolveu não pode ser excluído.
     banco.exec(`
         CREATE TABLE IF NOT EXISTS desafios_resolvidos (
             usuario_id INTEGER NOT NULL REFERENCES usuarios (id),
-            desafio_id INTEGER NOT NULL,
+            desafio_id INTEGER NOT NULL REFERENCES desafios (id),
             programa   TEXT    NOT NULL,
             data       TEXT    NOT NULL,
             PRIMARY KEY (usuario_id, desafio_id)

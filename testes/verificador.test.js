@@ -5,9 +5,12 @@ const { converterPrograma } = require('../compartilhado/hex.js');
 const Nucleo = require('../src/model/verificacao/Nucleo');
 const Verificador = require('../src/model/verificacao/Verificador');
 const DesafioRepositorio = require('../src/model/dados/DesafioRepositorio');
+const { abrirBanco } = require('../src/model/dados/banco');
 const { Condicao, TIPO_REGISTRADOR } = require('../src/model/dominio/Condicao');
 
-const repositorio = new DesafioRepositorio();
+// Os desafios vêm de um banco só na memória, com os três desafios iniciais
+const repositorio = new DesafioRepositorio(abrirBanco(':memory:'));
+repositorio.criarDesafiosIniciais();
 const somar = repositorio.buscar(1);
 const memoria = repositorio.buscar(2);
 
@@ -30,7 +33,7 @@ test('a condição compara o valor e se descreve para o aluno', () => {
 });
 
 test('as soluções de referência de todos os desafios são aprovadas', async () => {
-    for (const desafio of repositorio.listar()) {
+    for (const desafio of repositorio.listarTodos()) {
         const resultado = await verificar(desafio.solucaoDeReferencia, desafio);
         assert.strictEqual(resultado.aprovado, true, desafio.titulo + ': ' + resultado.motivo);
     }

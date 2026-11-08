@@ -17,6 +17,11 @@ class ResolvidoRepositorio {
         const linhas = this.banco.prepare('SELECT desafio_id FROM desafios_resolvidos WHERE usuario_id = ?').all(usuarioId);
         return linhas.map((linha) => linha.desafio_id);
     }
+
+    // Quantas pessoas já resolveram um desafio (para o instrutor)
+    quantosResolveram(desafioId) {
+        return this.banco.prepare('SELECT COUNT(*) AS total FROM desafios_resolvidos WHERE desafio_id = ?').get(desafioId).total;
+    }
 }
 
 module.exports = ResolvidoRepositorio;

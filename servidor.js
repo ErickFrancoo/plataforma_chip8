@@ -1,5 +1,5 @@
-// Servidor da plataforma: entrega o laboratório e os desafios, verifica as soluções enviadas
-// e cuida das contas de usuário.
+// Servidor da plataforma: entrega o laboratório e os desafios, verifica as soluções enviadas,
+// cuida das contas de usuário e das páginas do instrutor.
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
@@ -8,6 +8,8 @@ const DesafioController = require('./src/controller/DesafioController');
 const SubmissaoController = require('./src/controller/SubmissaoController');
 const ContaController = require('./src/controller/ContaController');
 const ConteudoController = require('./src/controller/ConteudoController');
+const GerenciarDesafiosController = require('./src/controller/GerenciarDesafiosController');
+const { PAPEL_INSTRUTOR } = require('./src/model/dominio/Usuario');
 const DesafioRepositorio = require('./src/model/dados/DesafioRepositorio');
 const ConteudoRepositorio = require('./src/model/dados/ConteudoRepositorio');
 const UsuarioRepositorio = require('./src/model/dados/UsuarioRepositorio');
@@ -22,16 +24,19 @@ const PASTA_NUCLEO = path.join(__dirname, 'nucleo', 'build');
 // O núcleo precisa terminar de carregar antes de o servidor começar a atender
 async function iniciar() {
     const nucleo = await Nucleo.carregar();
-    const repositorio = new DesafioRepositorio();
     const banco = abrirBanco();
+    const repositorio = new DesafioRepositorio(banco);
+    repositorio.criarDesafiosIniciais(); // só grava alguma coisa na primeira vez, com a tabela vazia
     const usuarios = new UsuarioRepositorio(banco);
     const resolvidos = new ResolvidoRepositorio(banco);
+    const verificador = new Verificador(nucleo);
 
     const laboratorio = new LaboratorioController();
     const desafios = new DesafioController(repositorio, resolvidos);
-    const submissoes = new SubmissaoController(repositorio, new Verificador(nucleo), resolvidos);
+    const submissoes = new SubmissaoController(repositorio, verificador, resolvidos);
     const contas = new ContaController(usuarios);
     const conteudos = new ConteudoController(new ConteudoRepositorio());
+    const gerenciar = new GerenciarDesafiosController(repositorio, verificador, resolvidos);
 
     const app = express();
     app.set('view engine', 'ejs');
@@ -51,12 +56,24 @@ async function iniciar() {
         saveUninitialized: false
     }));
 
-    // Deixa quem está logado (ou null) disponível em todas as páginas, com o nome "usuario"
+    // Deixa quem está logado (ou null) disponível em todas as páginas, com o nome "usuario",
+    // e se a pessoa é instrutor (ou administrador), com o nome "ehInstrutor"
     app.use((req, res, next) => {
         res.locals.usuario = null;
 
         if (req.session.usuarioId) {
             res.locals.usuario = usuarios.buscarPorId(req.session.usuarioId) || null;
+        }
+
+        res.locals.ehInstrutor = res.locals.usuario !== null && res.locals.usuario.temPapel(PAPEL_INSTRUTOR);
+        next();
+    });
+
+    // Todas as páginas que começam com /instrutor são só para instrutores
+    app.use('/instrutor', (req, res, next) => {
+        if (!res.locals.ehInstrutor) {
+            res.status(403).send('Esta página é só para instrutores.');
+            return;
         }
 
         next();
@@ -73,6 +90,12 @@ async function iniciar() {
     app.get('/desafios', (req, res) => desafios.listar(req, res));
     app.get('/desafios/:id', (req, res) => desafios.abrir(req, res));
     app.post('/desafios/:id/submeter', (req, res) => submissoes.submeter(req, res));
+    app.get('/instrutor/desafios', (req, res) => gerenciar.listar(req, res));
+    app.get('/instrutor/desafios/novo', (req, res) => gerenciar.novo(req, res));
+    app.post('/instrutor/desafios', (req, res) => gerenciar.salvar(req, res));
+    app.get('/instrutor/desafios/:id/editar', (req, res) => gerenciar.editar(req, res));
+    app.post('/instrutor/desafios/:id', (req, res) => gerenciar.salvar(req, res));
+    app.post('/instrutor/desafios/:id/excluir', (req, res) => gerenciar.excluir(req, res));
 
     app.listen(PORTA, () => {
         console.log(`Laboratório em http://localhost:${PORTA}`);

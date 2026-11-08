@@ -1,0 +1,79 @@
+<%# Formulário de criar ou de alterar um desafio (UC13). Recebe: id (undefined num desafio novo), valores
+    (o que está nos campos, como texto), erros e dificuldades. %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= id === undefined ? 'Novo desafio' : 'Editar desafio' %> · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'gerenciar', comPerfil: false }) %>
+
+    <main class="pagina">
+        <p class="trilha"><a href="/instrutor/desafios">Gerenciar desafios</a> › <%= id === undefined ? 'Novo desafio' : 'Editar desafio' %></p>
+        <h2><%= id === undefined ? 'Novo desafio' : 'Editar desafio' %></h2>
+
+        <form class="cartao formulario formulario-desafio" method="post"
+              action="<%= id === undefined ? '/instrutor/desafios' : '/instrutor/desafios/' + id %>">
+            <label>Título
+                <input type="text" name="titulo" value="<%= valores.titulo %>" required>
+            </label>
+            <label>Enunciado
+                <textarea name="enunciado" rows="3" required><%= valores.enunciado %></textarea>
+            </label>
+            <div class="campos-lado-a-lado">
+                <label>Conceito
+                    <input type="text" name="conceito" value="<%= valores.conceito %>" placeholder="Registradores" required>
+                </label>
+                <label>Dificuldade
+                    <select name="dificuldade">
+                        <% for (const dificuldade of dificuldades) { %>
+                            <option <%= valores.dificuldade === dificuldade ? 'selected' : '' %>><%= dificuldade %></option>
+                        <% } %>
+                    </select>
+                </label>
+                <label>Limite de instruções
+                    <input type="number" name="limiteDeInstrucoes" value="<%= valores.limiteDeInstrucoes %>" min="1" max="100000" required>
+                </label>
+            </div>
+
+            <fieldset>
+                <legend>Resultado esperado</legend>
+                <p class="detalhe">Até 4 condições. Linhas vazias são ignoradas. O valor é um byte em hexadecimal, como 0A.</p>
+                <% valores.condicoes.forEach((condicao, i) => { %>
+                    <div class="linha-condicao">
+                        <select name="tipo<%= i %>" aria-label="Tipo da condição <%= i + 1 %>">
+                            <option value="REGISTRADOR" <%= condicao.tipo === 'REGISTRADOR' ? 'selected' : '' %>>Registrador</option>
+                            <option value="MEMORIA" <%= condicao.tipo === 'MEMORIA' ? 'selected' : '' %>>Memória</option>
+                        </select>
+                        <input type="text" name="alvo<%= i %>" value="<%= condicao.alvo %>" placeholder="V2 ou 0x300" aria-label="Alvo da condição <%= i + 1 %>">
+                        <span>=</span>
+                        <input type="text" name="valor<%= i %>" value="<%= condicao.valor %>" placeholder="0A" maxlength="2" aria-label="Valor da condição <%= i + 1 %>">
+                    </div>
+                <% }) %>
+            </fieldset>
+
+            <label>Solução de referência
+                <textarea name="solucaoDeReferencia" rows="5" class="codigo-fonte" required><%= valores.solucaoDeReferencia %></textarea>
+                <span class="detalhe">Precisa terminar com o salto para o próprio endereço, como nos programas dos alunos.</span>
+            </label>
+
+            <% if (erros.length > 0) { %>
+                <ul class="erros">
+                    <% for (const erro of erros) { %>
+                        <li><%= erro %></li>
+                    <% } %>
+                </ul>
+            <% } %>
+
+            <div class="acoes">
+                <button class="principal" type="submit">Salvar e verificar</button>
+                <a class="chip" href="/instrutor/desafios">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

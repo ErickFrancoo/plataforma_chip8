@@ -1,0 +1,51 @@
+<%# O que aconteceu ao salvar um desafio (UC13): publicado, ou rascunho porque a solução de referência
+    não passou. Recebe: desafio e resultado (da verificação da solução de referência). %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Desafio salvo · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'gerenciar', comPerfil: false }) %>
+
+    <main class="pagina">
+        <p class="trilha"><a href="/instrutor/desafios">Gerenciar desafios</a> › <%= desafio.titulo %></p>
+
+        <% if (resultado.aprovado) { %>
+            <div class="resultado aprovado">
+                <span class="rotulo">SOLUÇÃO DE REFERÊNCIA</span>
+                <h2>Publicado!</h2>
+                <p><%= resultado.motivo %> Os aprendizes já veem "<%= desafio.titulo %>" na lista de desafios.</p>
+                <ul>
+                    <% for (const condicao of desafio.condicoes) { %>
+                        <li>✓ <%= condicao.descricao() %></li>
+                    <% } %>
+                </ul>
+            </div>
+        <% } else { %>
+            <div class="resultado reprovado">
+                <span class="rotulo">SOLUÇÃO DE REFERÊNCIA</span>
+                <h2>Salvo como rascunho</h2>
+                <p>A solução de referência não passou, então os aprendizes ainda não veem este desafio.
+                   Corrija a solução ou as condições e salve de novo.</p>
+                <p><%= resultado.motivo %></p>
+                <ul>
+                    <% for (const falha of resultado.falhas) { %>
+                        <li>✗ <%= falha.texto() %></li>
+                    <% } %>
+                </ul>
+            </div>
+        <% } %>
+
+        <div class="acoes">
+            <a class="principal" href="/instrutor/desafios/<%= desafio.id %>/editar">Editar de novo</a>
+            <a class="chip" href="/desafios/<%= desafio.id %>">Testar no laboratório</a>
+            <a class="chip" href="/instrutor/desafios">Voltar à lista</a>
+        </div>
+    </main>
+</body>
+</html>

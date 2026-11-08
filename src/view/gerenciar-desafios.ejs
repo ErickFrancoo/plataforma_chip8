@@ -1,0 +1,58 @@
+<%# Lista de todos os desafios para o instrutor (UC13). Recebe: desafios, resolveram (quantas pessoas
+    resolveram cada um, na mesma ordem), mensagem (ou null) e ehErro. %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gerenciar desafios · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'gerenciar', comPerfil: false }) %>
+
+    <main class="pagina">
+        <h2>Gerenciar desafios</h2>
+        <p class="subtitulo">Ao salvar, a solução de referência é verificada: o desafio só é publicado se ela passar.</p>
+
+        <% if (mensagem) { %>
+            <p class="<%= ehErro ? 'erro' : 'aviso-ok' %>"><%= mensagem %></p>
+        <% } %>
+
+        <div class="acoes">
+            <a class="principal" href="/instrutor/desafios/novo">+ Novo desafio</a>
+        </div>
+
+        <div class="caixa-da-tabela">
+            <table class="tabela">
+                <tr><th>Desafio</th><th>Situação</th><th>Resolveram</th><th></th></tr>
+                <% desafios.forEach((desafio, i) => { %>
+                    <tr>
+                        <td><strong><%= desafio.titulo %></strong><br><span class="detalhe"><%= desafio.conceito %> · <%= desafio.dificuldade %></span></td>
+                        <td>
+                            <% if (desafio.situacao === 'PUBLICADO') { %>
+                                <span class="selo">Publicado</span>
+                            <% } else { %>
+                                <span class="selo selo-rascunho">Rascunho</span>
+                            <% } %>
+                        </td>
+                        <td><%= resolveram[i] %></td>
+                        <td>
+                            <div class="acoes-da-linha">
+                                <a class="chip" href="/instrutor/desafios/<%= desafio.id %>/editar">Editar</a>
+                                <a class="chip" href="/desafios/<%= desafio.id %>">Testar</a>
+                                <%# confirm pergunta antes de enviar; se a pessoa cancelar, o formulário não é enviado %>
+                                <form method="post" action="/instrutor/desafios/<%= desafio.id %>/excluir"
+                                      onsubmit="return confirm('Excluir este desafio?')">
+                                    <button class="chip" type="submit">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

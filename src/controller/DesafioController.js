@@ -11,13 +11,14 @@ class DesafioController {
         const usuario = res.locals.usuario;
         const resolvidos = usuario === null ? [] : this.resolvidos.desafiosResolvidos(usuario.id);
 
-        res.render('desafios', { desafios: this.repositorio.listar(), resolvidos: resolvidos });
+        res.render('desafios', { desafios: this.repositorio.listarPublicados(), resolvidos: resolvidos });
     }
 
     abrir(req, res) {
         const desafio = this.repositorio.buscar(Number(req.params.id));
 
-        if (desafio === undefined) {
+        // Um rascunho só abre para os instrutores; para os outros, é como se não existisse
+        if (desafio === undefined || !desafio.visivelPara(res.locals.usuario)) {
             res.status(404).send('Desafio não encontrado.');
             return;
         }

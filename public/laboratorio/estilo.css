@@ -418,6 +418,7 @@ body:not(.editando) #editor {
 /* Menu do topo */
 .menu {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
 }
 
@@ -603,6 +604,120 @@ a.chip {
 
 .formulario .principal {
     align-self: flex-start;
+}
+
+.formulario textarea,
+.formulario select {
+    padding: 8px 10px;
+    border: 1px solid var(--linha);
+    border-radius: 10px;
+    background: white;
+    color: var(--texto);
+    font: inherit;
+}
+
+/* O laboratório deixa o textarea com altura fixa; nos formulários, a altura vem do atributo rows */
+.formulario textarea {
+    height: auto;
+    margin-top: 0;
+    resize: vertical;
+}
+
+.formulario .codigo-fonte {
+    font-family: var(--fonte-codigo);
+}
+
+/* Gerenciar desafios: a lista, o formulário e as situações */
+.formulario-desafio {
+    max-width: 760px;
+}
+
+.campos-lado-a-lado {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.formulario fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 14px 14px;
+    border: 1px solid var(--linha);
+    border-radius: 12px;
+}
+
+.formulario legend {
+    padding: 0 6px;
+    font-size: 14px;
+    color: var(--suave);
+}
+
+.formulario fieldset .detalhe {
+    margin: 0;
+}
+
+.linha-condicao {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr) auto 64px;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Numa tela estreita, a tabela rola para o lado dentro desta caixa, e não a página inteira */
+.caixa-da-tabela {
+    margin-top: 16px;
+    overflow-x: auto;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--cartao);
+}
+
+.tabela th,
+.tabela td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--linha);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.tabela th {
+    background: var(--verde-claro);
+}
+
+.acoes-da-linha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.acoes-da-linha form {
+    margin: 0;
+}
+
+.selo {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--verde-claro);
+    color: var(--verde-escuro);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.selo-rascunho {
+    background: var(--mudou);
+    color: var(--mudou-texto);
+}
+
+.aviso-ok {
+    margin: 12px 0 0;
+    color: var(--verde-escuro);
+    font-weight: 600;
 }
 
 .erro {

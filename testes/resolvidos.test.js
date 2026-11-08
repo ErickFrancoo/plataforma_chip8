@@ -4,12 +4,14 @@ const assert = require('node:assert');
 const { Usuario, PAPEL_APRENDIZ } = require('../src/model/dominio/Usuario');
 const UsuarioRepositorio = require('../src/model/dados/UsuarioRepositorio');
 const ResolvidoRepositorio = require('../src/model/dados/ResolvidoRepositorio');
+const DesafioRepositorio = require('../src/model/dados/DesafioRepositorio');
 const { abrirBanco } = require('../src/model/dados/banco');
 
-// Cada teste começa com um banco vazio e duas contas: Ana (id 1) e Bruno (id 2)
+// Cada teste começa com um banco vazio, os três desafios iniciais e duas contas: Ana (id 1) e Bruno (id 2)
 function prepararBanco() {
     const banco = abrirBanco(':memory:');
     const usuarios = new UsuarioRepositorio(banco);
+    new DesafioRepositorio(banco).criarDesafiosIniciais();
 
     for (const email of ['ana@exemplo.com', 'bruno@exemplo.com']) {
         usuarios.salvar(new Usuario(null, 'Teste', email, Usuario.resumirSenha('segredo123'), PAPEL_APRENDIZ, false));

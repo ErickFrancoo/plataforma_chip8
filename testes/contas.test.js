@@ -61,3 +61,11 @@ test('o banco não aceita dois usuários com o mesmo e-mail', () => {
     usuarios.salvar(novoUsuario('ana@exemplo.com', PAPEL_APRENDIZ));
     assert.throws(() => usuarios.salvar(novoUsuario('ana@exemplo.com', PAPEL_APRENDIZ)));
 });
+
+test('o papel de uma conta pode ser alterado (comando promover)', () => {
+    const usuarios = new UsuarioRepositorio(abrirBanco(':memory:'));
+    const ana = usuarios.salvar(novoUsuario('ana@exemplo.com', PAPEL_APRENDIZ));
+
+    usuarios.alterarPapel(ana.id, PAPEL_INSTRUTOR);
+    assert.strictEqual(usuarios.buscarPorId(ana.id).temPapel(PAPEL_INSTRUTOR), true);
+});

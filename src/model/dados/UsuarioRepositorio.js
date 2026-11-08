@@ -31,6 +31,11 @@ class UsuarioRepositorio {
         return this.buscarPorEmail(email) !== undefined;
     }
 
+    // Usado pelo comando "promover", enquanto não existe a página do administrador (UC17)
+    alterarPapel(id, papel) {
+        this.banco.prepare('UPDATE usuarios SET papel = ? WHERE id = ?').run(papel, id);
+    }
+
     // Transforma uma linha da tabela num objeto Usuario
     criarUsuario(linha) {
         return new Usuario(linha.id, linha.nome, linha.email, linha.senha_hash, linha.papel, linha.bloqueado === 1);
