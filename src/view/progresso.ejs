@@ -1,0 +1,53 @@
+<%# Meu progresso (UC12). Recebe: progresso (total, resolvidos, porConceito e porcentagem()) e formatarData. %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meu progresso · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'progresso', comPerfil: false }) %>
+
+    <main class="pagina">
+        <h2>Meu progresso</h2>
+        <p class="subtitulo">Você resolveu <strong><%= progresso.resolvidos.length %> de <%= progresso.total %></strong> desafios.</p>
+
+        <div class="barra" role="progressbar" aria-valuenow="<%= progresso.porcentagem() %>" aria-valuemin="0" aria-valuemax="100">
+            <div class="barra-cheia" style="width: <%= progresso.porcentagem() %>%"></div>
+        </div>
+        <p class="detalhe"><%= progresso.porcentagem() %>% concluído</p>
+
+        <h3 class="titulo-de-secao">Por conceito</h3>
+        <div class="caixa-da-tabela">
+            <table class="tabela">
+                <tr><th>Conceito</th><th>Resolvidos</th></tr>
+                <% for (const grupo of progresso.porConceito) { %>
+                    <tr>
+                        <td><%= grupo.conceito %></td>
+                        <td>
+                            <%= grupo.resolvidos %> de <%= grupo.total %>
+                            <% if (grupo.resolvidos === grupo.total) { %>
+                                <span class="selo">✓ Completo</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% } %>
+            </table>
+        </div>
+
+        <h3 class="titulo-de-secao">Desafios resolvidos</h3>
+        <% if (progresso.resolvidos.length === 0) { %>
+            <p>Você ainda não resolveu nenhum desafio. <a href="/desafios">Comece pela lista de desafios</a>.</p>
+        <% } else { %>
+            <ul class="lista-resolvidos">
+                <% for (const resolvido of progresso.resolvidos) { %>
+                    <li>✓ <strong><%= resolvido.titulo %></strong> <span class="detalhe"><%= resolvido.conceito %> · em <%= formatarData(resolvido.data) %></span></li>
+                <% } %>
+            </ul>
+        <% } %>
+    </main>
+</body>
+</html>

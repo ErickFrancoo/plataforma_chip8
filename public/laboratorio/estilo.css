@@ -821,3 +821,32 @@ a.chip {
     color: var(--texto);
     font: inherit;
 }
+
+/* Meu progresso: a barra e a lista dos resolvidos */
+.barra {
+    height: 14px;
+    margin-top: 14px;
+    border-radius: 999px;
+    background: var(--verde-claro);
+    overflow: hidden;
+}
+
+.barra-cheia {
+    height: 100%;
+    background: var(--verde);
+}
+
+.titulo-de-secao {
+    margin: 24px 0 0;
+    color: var(--verde-escuro);
+}
+
+.lista-resolvidos {
+    padding-left: 0;
+    list-style: none; /* o ✓ já marca cada item */
+}
+
+.lista-resolvidos li {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--linha);
+}

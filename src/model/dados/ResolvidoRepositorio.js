@@ -18,6 +18,14 @@ class ResolvidoRepositorio {
         return linhas.map((linha) => linha.desafio_id);
     }
 
+    // Os desafios que o usuário resolveu e quando, como [{ desafioId: 1, data: '2026-11-10T23:40:00.000Z' }]
+    resolvidosComData(usuarioId) {
+        const linhas = this.banco
+            .prepare('SELECT desafio_id, data FROM desafios_resolvidos WHERE usuario_id = ?')
+            .all(usuarioId);
+        return linhas.map((linha) => ({ desafioId: linha.desafio_id, data: linha.data }));
+    }
+
     // Quantas pessoas já resolveram um desafio (para o instrutor)
     quantosResolveram(desafioId) {
         return this.banco.prepare('SELECT COUNT(*) AS total FROM desafios_resolvidos WHERE desafio_id = ?').get(desafioId).total;
