@@ -64,6 +64,29 @@ class Usuario {
     temPapel(minimo) {
         return PAPEIS.indexOf(this.papel) >= PAPEIS.indexOf(minimo);
     }
+
+    // As regras do UC17. "administrador" é quem está mudando a conta "alvo". Devolvem a mensagem de erro,
+    // ou null quando pode. O administrador não mexe na própria conta: assim a plataforma nunca fica sem
+    // administrador.
+    static validarMudancaDePapel(administrador, alvo, papel) {
+        if (!PAPEIS.includes(papel)) {
+            return 'Escolha um papel válido.';
+        }
+
+        if (administrador.id === alvo.id) {
+            return 'Você não pode mudar o seu próprio papel.';
+        }
+
+        return null;
+    }
+
+    static validarBloqueio(administrador, alvo) {
+        if (administrador.id === alvo.id) {
+            return 'Você não pode bloquear a sua própria conta.';
+        }
+
+        return null;
+    }
 }
 
-module.exports = { Usuario, PAPEL_APRENDIZ, PAPEL_INSTRUTOR, PAPEL_ADMINISTRADOR };
+module.exports = { Usuario, PAPEIS, PAPEL_APRENDIZ, PAPEL_INSTRUTOR, PAPEL_ADMINISTRADOR };

@@ -811,3 +811,13 @@ a.chip {
         grid-template-columns: repeat(4, 1fr);
     }
 }
+
+/* Usuários: o papel de cada conta, escolhido numa lista */
+.tabela select {
+    padding: 4px 8px;
+    border: 1px solid var(--linha);
+    border-radius: 8px;
+    background: white;
+    color: var(--texto);
+    font: inherit;
+}
