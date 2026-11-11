@@ -10,6 +10,7 @@ const ContaController = require('./src/controller/ContaController');
 const ConteudoController = require('./src/controller/ConteudoController');
 const GerenciarDesafiosController = require('./src/controller/GerenciarDesafiosController');
 const UsuariosController = require('./src/controller/UsuariosController');
+const RelatorioController = require('./src/controller/RelatorioController');
 const { PAPEL_INSTRUTOR, PAPEL_ADMINISTRADOR } = require('./src/model/dominio/Usuario');
 const DesafioRepositorio = require('./src/model/dados/DesafioRepositorio');
 const ConteudoRepositorio = require('./src/model/dados/ConteudoRepositorio');
@@ -39,6 +40,7 @@ async function iniciar() {
     const conteudos = new ConteudoController(new ConteudoRepositorio());
     const gerenciar = new GerenciarDesafiosController(repositorio, verificador, resolvidos);
     const contasDoAdministrador = new UsuariosController(usuarios);
+    const relatorios = new RelatorioController(repositorio, resolvidos);
 
     const app = express();
     app.set('view engine', 'ejs');
@@ -110,6 +112,7 @@ async function iniciar() {
     app.get('/desafios', (req, res) => desafios.listar(req, res));
     app.get('/desafios/:id', (req, res) => desafios.abrir(req, res));
     app.post('/desafios/:id/submeter', (req, res) => submissoes.submeter(req, res));
+    app.get('/progresso', (req, res) => relatorios.progresso(req, res));
     app.get('/instrutor/desafios', (req, res) => gerenciar.listar(req, res));
     app.get('/instrutor/desafios/novo', (req, res) => gerenciar.novo(req, res));
     app.post('/instrutor/desafios', (req, res) => gerenciar.salvar(req, res));
