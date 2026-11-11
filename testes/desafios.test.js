@@ -8,8 +8,11 @@ const DesafioRepositorio = require('../src/model/dados/DesafioRepositorio');
 const UsuarioRepositorio = require('../src/model/dados/UsuarioRepositorio');
 const ResolvidoRepositorio = require('../src/model/dados/ResolvidoRepositorio');
 const { abrirBanco } = require('../src/model/dados/banco');
+const DESAFIOS_INICIAIS = require('../src/model/dados/desafios-iniciais');
 
-// Cada teste começa com um banco vazio e os três desafios iniciais
+const TOTAL_INICIAL = DESAFIOS_INICIAIS.length; // os testes não dependem de quantos desafios iniciais existem
+
+// Cada teste começa com um banco vazio e os desafios iniciais
 function prepararBanco() {
     const banco = abrirBanco(':memory:');
     const desafios = new DesafioRepositorio(banco);
@@ -38,8 +41,11 @@ test('os desafios iniciais são gravados uma vez só, já publicados', () => {
     const { desafios } = prepararBanco();
     desafios.criarDesafiosIniciais(); // a segunda chamada não grava de novo
 
+    // Os ids seguem a ordem do arquivo: 1, 2, 3...
     const titulos = desafios.listarPublicados().map((desafio) => desafio.id + ' ' + desafio.titulo);
-    assert.deepStrictEqual(titulos, ['1 Somar 3 e 7', '2 Guardar 5 na memória', '3 Somar de 1 a 5']);
+    const esperados = DESAFIOS_INICIAIS.map((dados, i) => (i + 1) + ' ' + dados.titulo);
+    assert.deepStrictEqual(titulos, esperados);
+    assert.strictEqual(titulos[0], '1 Somar 3 e 7');
 });
 
 test('um desafio lido do banco vem com os campos e as condições', () => {
@@ -57,9 +63,9 @@ test('um rascunho aparece para os instrutores, mas não na lista dos aprendizes'
     const { desafios } = prepararBanco();
     const rascunho = desafios.salvar(novoRascunho());
 
-    assert.strictEqual(rascunho.id, 4);
-    assert.strictEqual(desafios.listarTodos().length, 4);
-    assert.strictEqual(desafios.listarPublicados().length, 3);
+    assert.strictEqual(rascunho.id, TOTAL_INICIAL + 1);
+    assert.strictEqual(desafios.listarTodos().length, TOTAL_INICIAL + 1);
+    assert.strictEqual(desafios.listarPublicados().length, TOTAL_INICIAL);
 
     const pessoa = (papel) => new Usuario(1, 'Ana', 'ana@exemplo.com', 'sal:resumo', papel, false);
     assert.strictEqual(rascunho.visivelPara(null), false);
