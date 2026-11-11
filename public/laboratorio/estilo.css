@@ -1,4 +1,4 @@
-/* Paleta "Game Boy". Para mudar o visual, basta trocar as cores deste bloco. */
+﻿/* Paleta "Game Boy". Para mudar o visual, basta trocar as cores deste bloco. */
 :root {
     --fundo: #eef3dc;
     --cartao: #fbfdf3;
@@ -22,8 +22,8 @@
     --fonte-texto: 'Segoe UI', Calibri, Arial, sans-serif;
     --fonte-pixel: 'Silkscreen', Consolas, monospace;
     --fonte-codigo: Consolas, 'Courier New', monospace;
-    --largura-tela: clamp(280px, 60vw, 760px);
-    --altura-programa: clamp(260px, 38vh, 620px);
+    --largura-tela: 760px;
+    --altura-programa: 520px;
 }
 
 body {
@@ -59,7 +59,7 @@ button:disabled {
     gap: 8px 16px;
     width: min(100%, 1180px);
     margin: 0 auto;
-    padding: 16px clamp(18px, 3vw, 32px);
+    padding: 16px 32px;
     box-sizing: border-box;
 }
 
@@ -123,10 +123,10 @@ main.laboratorio {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.88fr);
     align-items: start;
-    gap: clamp(16px, 2vw, 24px);
+    gap: 24px;
     width: min(100%, 1240px);
     margin: 0 auto;
-    padding: 0 clamp(18px, 3vw, 32px) 32px;
+    padding: 0 32px 32px;
     box-sizing: border-box;
 }
 
@@ -134,7 +134,7 @@ main.laboratorio {
     background: var(--cartao);
     border: 1px solid var(--linha);
     border-radius: 20px;
-    padding: clamp(12px, 2vw, 16px);
+    padding: 16px;
 }
 
 .cartao.maquina {
@@ -150,7 +150,7 @@ main.laboratorio {
 /* Máquina: tela, controles e registradores */
 .moldura {
     background: var(--moldura);
-    padding: clamp(10px, 1.8vw, 16px);
+    padding: 16px;
     border-radius: 16px;
     width: 100%;
     box-sizing: border-box;
@@ -494,9 +494,9 @@ body:not(.editando) textarea {
 
 /* Desafios: lista, enunciado e resultado */
 .pagina {
-    width: min(100%, 980px);
+    width: min(100%, 1080px);
     margin: 0 auto;
-    padding: 0 clamp(18px, 3vw, 32px) 32px;
+    padding: 0 32px 32px;
     box-sizing: border-box;
 }
 
@@ -521,15 +521,16 @@ body:not(.editando) textarea {
 .lista-conteudos {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-    gap: clamp(10px, 2vw, 14px);
+    gap: 14px;
     margin-top: 16px;
+    align-items: stretch;
 }
 
 .controle-desafios {
     display: grid;
     gap: 12px;
     margin-top: 16px;
-    width: min(100%, 760px);
+    width: min(100%, 860px);
 }
 
 .filtro-menu {
