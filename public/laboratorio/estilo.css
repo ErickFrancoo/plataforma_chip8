@@ -22,7 +22,8 @@
     --fonte-texto: 'Segoe UI', Calibri, Arial, sans-serif;
     --fonte-pixel: 'Silkscreen', Consolas, monospace;
     --fonte-codigo: Consolas, 'Courier New', monospace;
-    --altura-programa: 300px;
+    --largura-tela: clamp(280px, 60vw, 760px);
+    --altura-programa: clamp(260px, 38vh, 620px);
 }
 
 body {
@@ -56,7 +57,10 @@ button:disabled {
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 16px;
-    padding: 16px 32px;
+    width: min(100%, 1180px);
+    margin: 0 auto;
+    padding: 16px clamp(18px, 3vw, 32px);
+    box-sizing: border-box;
 }
 
 .marca {
@@ -117,30 +121,49 @@ h1 {
 /* Organização do laboratório: duas colunas, e uma só em janelas estreitas */
 main.laboratorio {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    gap: 20px;
-    padding: 0 32px 32px;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.88fr);
+    align-items: start;
+    gap: clamp(16px, 2vw, 24px);
+    width: min(100%, 1240px);
+    margin: 0 auto;
+    padding: 0 clamp(18px, 3vw, 32px) 32px;
+    box-sizing: border-box;
 }
 
 .cartao {
     background: var(--cartao);
     border: 1px solid var(--linha);
     border-radius: 20px;
-    padding: 16px;
+    padding: clamp(12px, 2vw, 16px);
+}
+
+.cartao.maquina {
+    min-height: 100%;
+}
+
+.cartao.programa {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
 }
 
 /* Máquina: tela, controles e registradores */
 .moldura {
     background: var(--moldura);
-    padding: 12px;
+    padding: clamp(10px, 1.8vw, 16px);
     border-radius: 16px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 canvas {
     display: block;
     width: 100%;
+    aspect-ratio: 2 / 1;
+    max-width: 100%;
     border-radius: 6px;
     image-rendering: pixelated;
+    height: auto;
 }
 
 .controles {
@@ -277,8 +300,13 @@ kbd {
     gap: 6px;
 }
 
+.chips {
+    margin-bottom: 8px;
+}
+
 .acoes {
-    margin-top: 12px;
+    margin-top: auto;
+    padding-top: 12px;
 }
 
 .chip {
@@ -301,6 +329,7 @@ textarea,
     box-sizing: border-box;
     width: 100%;
     height: var(--altura-programa);
+    max-height: var(--altura-programa);
     margin-top: 12px;
     border: 1px solid var(--linha);
     border-radius: 12px;
@@ -313,13 +342,20 @@ textarea {
     padding: 10px;
     resize: none;
     color: var(--texto);
+    flex: 1;
+    min-height: 0;
 }
 
 .listagem {
     position: relative;
+    display: block;
     padding: 4px;
     overflow-y: auto;
+    overflow-x: hidden;
     scroll-behavior: smooth;
+    flex: 1 1 auto;
+    min-height: 0;
+    overscroll-behavior: contain;
 }
 
 .linha {
@@ -376,6 +412,7 @@ textarea {
     padding: 8px 12px;
     border: 1.5px dashed var(--verde);
     border-radius: 12px;
+    min-height: 80px;
 }
 
 .rotulo {
@@ -415,6 +452,26 @@ body:not(.editando) #editor {
     display: none;
 }
 
+body:not(.editando) .listagem {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+body:not(.editando) textarea {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    main.laboratorio {
+        grid-template-columns: 1fr;
+    }
+
+    .cartao.maquina,
+    .cartao.programa {
+        min-width: 0;
+    }
+}
+
 /* Menu do topo */
 .menu {
     display: flex;
@@ -437,8 +494,10 @@ body:not(.editando) #editor {
 
 /* Desafios: lista, enunciado e resultado */
 .pagina {
-    max-width: 900px;
-    padding: 0 32px 32px;
+    width: min(100%, 980px);
+    margin: 0 auto;
+    padding: 0 clamp(18px, 3vw, 32px) 32px;
+    box-sizing: border-box;
 }
 
 .pagina h2,
@@ -461,9 +520,84 @@ body:not(.editando) #editor {
 .lista-desafios,
 .lista-conteudos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: clamp(10px, 2vw, 14px);
     margin-top: 16px;
+}
+
+.controle-desafios {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+    width: min(100%, 760px);
+}
+
+.filtro-menu {
+    border: 1px solid var(--linha);
+    border-radius: 14px;
+    background: var(--cartao);
+    padding: 10px 12px;
+}
+
+.filtro-menu summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--verde-escuro);
+    list-style: none;
+}
+
+.filtro-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.filtro {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--verde-claro);
+    color: var(--verde-escuro);
+    border: 1px solid transparent;
+    font-size: 13px;
+}
+
+.chip.ativo {
+    background: var(--verde);
+    color: white;
+}
+
+.ordenacao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+    color: var(--suave);
+}
+
+.ordenacao select {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--linha);
+    background: var(--cartao);
+    color: var(--texto);
+    font: inherit;
+}
+
+.sem-desafios {
+    margin-top: 16px;
+    color: var(--suave);
+}
+
+.escondido {
+    display: none;
 }
 
 .cartao-desafio,

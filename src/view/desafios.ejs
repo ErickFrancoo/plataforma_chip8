@@ -1,4 +1,6 @@
 <%# Lista de desafios (UC05). Recebe: desafios e resolvidos (os ids dos que quem entrou já resolveu). %>
+<% const conceitos = [...new Set(desafios.map((desafio) => desafio.conceito).filter(Boolean))]; %>
+<% const dificuldades = [...new Set(desafios.map((desafio) => desafio.dificuldade).filter(Boolean))]; %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -15,9 +17,44 @@
         <h2>Desafios</h2>
         <p class="subtitulo">Escreva um programa em hexadecimal que deixe a máquina no estado pedido.</p>
 
+        <div class="controle-desafios">
+            <details class="filtro-menu" open>
+                <summary>Filtrar por tema</summary>
+                <div class="chips filtro">
+                    <button type="button" class="chip ativo" data-filtro-conceito="todos">Todos</button>
+                    <% for (const conceito of conceitos) { %>
+                        <button type="button" class="chip" data-filtro-conceito="<%= conceito %>"><%= conceito %></button>
+                    <% } %>
+                </div>
+            </details>
+
+            <details class="filtro-menu" open>
+                <summary>Filtrar por dificuldade</summary>
+                <div class="chips filtro">
+                    <button type="button" class="chip ativo" data-filtro-dificuldade="todos">Todas</button>
+                    <% for (const dificuldade of dificuldades) { %>
+                        <button type="button" class="chip" data-filtro-dificuldade="<%= dificuldade %>"><%= dificuldade %></button>
+                    <% } %>
+                </div>
+            </details>
+
+            <label class="ordenacao" for="ordem-desafios">
+                <span>Ordenar</span>
+                <select id="ordem-desafios">
+                    <option value="padrao">Padrão</option>
+                    <option value="dificuldade">Dificuldade</option>
+                    <option value="tema">Tema</option>
+                    <option value="titulo">Título</option>
+                </select>
+            </label>
+        </div>
+
         <div class="lista-desafios">
             <% for (const desafio of desafios) { %>
-                <a class="cartao cartao-desafio" href="/desafios/<%= desafio.id %>">
+                <a class="cartao cartao-desafio" href="/desafios/<%= desafio.id %>"
+                   data-conceito="<%= desafio.conceito %>"
+                   data-dificuldade="<%= desafio.dificuldade %>"
+                   data-titulo="<%= desafio.titulo %>">
                     <span class="rotulo"><%= desafio.conceito.toUpperCase() %></span>
                     <strong><%= desafio.titulo %></strong>
                     <span class="detalhe"><%= desafio.dificuldade %></span>
@@ -27,6 +64,86 @@
                 </a>
             <% } %>
         </div>
+
+        <p id="sem-desafios" class="sem-desafios escondido">Nenhum desafio bate com os filtros selecionados.</p>
     </main>
+
+    <script>
+        (() => {
+            const cards = Array.from(document.querySelectorAll('.cartao-desafio'));
+            const container = document.querySelector('.lista-desafios');
+            const semDesafios = document.getElementById('sem-desafios');
+            const botoesTema = Array.from(document.querySelectorAll('[data-filtro-conceito]'));
+            const botoesDificuldade = Array.from(document.querySelectorAll('[data-filtro-dificuldade]'));
+            const seletor = document.getElementById('ordem-desafios');
+            const ordemDificuldade = { 'Fácil': 1, 'Médio': 2, 'Difícil': 3 };
+
+            let filtroTema = 'todos';
+            let filtroDificuldade = 'todos';
+            let ordem = 'padrao';
+
+            function atualizarAtivos() {
+                botoesTema.forEach((botao) => {
+                    const ativo = botao.dataset.filtroConceito === filtroTema;
+                    botao.classList.toggle('ativo', ativo);
+                });
+
+                botoesDificuldade.forEach((botao) => {
+                    const ativo = botao.dataset.filtroDificuldade === filtroDificuldade;
+                    botao.classList.toggle('ativo', ativo);
+                });
+            }
+
+            function comparar(a, b) {
+                switch (ordem) {
+                    case 'dificuldade':
+                        return ordemDificuldade[a.dataset.dificuldade] - ordemDificuldade[b.dataset.dificuldade]
+                            || a.dataset.titulo.localeCompare(b.dataset.titulo);
+                    case 'tema':
+                        return a.dataset.conceito.localeCompare(b.dataset.conceito)
+                            || a.dataset.titulo.localeCompare(b.dataset.titulo);
+                    case 'titulo':
+                        return a.dataset.titulo.localeCompare(b.dataset.titulo);
+                    default:
+                            return 0;
+                }
+            }
+
+            function aplicarFiltros() {
+                const filtrados = cards.filter((card) => {
+                    const temaOk = filtroTema === 'todos' || card.dataset.conceito === filtroTema;
+                    const dificuldadeOk = filtroDificuldade === 'todos' || card.dataset.dificuldade === filtroDificuldade;
+                    return temaOk && dificuldadeOk;
+                }).sort(comparar);
+
+                container.innerHTML = '';
+                filtrados.forEach((card) => container.appendChild(card));
+
+                semDesafios.classList.toggle('escondido', filtrados.length > 0);
+                atualizarAtivos();
+            }
+
+            botoesTema.forEach((botao) => {
+                botao.addEventListener('click', () => {
+                    filtroTema = botao.dataset.filtroConceito;
+                    aplicarFiltros();
+                });
+            });
+
+            botoesDificuldade.forEach((botao) => {
+                botao.addEventListener('click', () => {
+                    filtroDificuldade = botao.dataset.filtroDificuldade;
+                    aplicarFiltros();
+                });
+            });
+
+            seletor.addEventListener('change', (evento) => {
+                ordem = evento.target.value;
+                aplicarFiltros();
+            });
+
+            aplicarFiltros();
+        })();
+    </script>
 </body>
 </html>
