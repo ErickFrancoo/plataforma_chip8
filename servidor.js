@@ -1,5 +1,5 @@
 // Servidor da plataforma: entrega o laboratório e os desafios, verifica as soluções enviadas,
-// cuida das contas de usuário e das páginas do instrutor.
+// cuida das contas de usuário e das páginas do instrutor e do administrador.
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
@@ -9,7 +9,8 @@ const SubmissaoController = require('./src/controller/SubmissaoController');
 const ContaController = require('./src/controller/ContaController');
 const ConteudoController = require('./src/controller/ConteudoController');
 const GerenciarDesafiosController = require('./src/controller/GerenciarDesafiosController');
-const { PAPEL_INSTRUTOR } = require('./src/model/dominio/Usuario');
+const UsuariosController = require('./src/controller/UsuariosController');
+const { PAPEL_INSTRUTOR, PAPEL_ADMINISTRADOR } = require('./src/model/dominio/Usuario');
 const DesafioRepositorio = require('./src/model/dados/DesafioRepositorio');
 const ConteudoRepositorio = require('./src/model/dados/ConteudoRepositorio');
 const UsuarioRepositorio = require('./src/model/dados/UsuarioRepositorio');
@@ -37,6 +38,7 @@ async function iniciar() {
     const contas = new ContaController(usuarios);
     const conteudos = new ConteudoController(new ConteudoRepositorio());
     const gerenciar = new GerenciarDesafiosController(repositorio, verificador, resolvidos);
+    const contasDoAdministrador = new UsuariosController(usuarios);
 
     const app = express();
     app.set('view engine', 'ejs');
@@ -57,15 +59,23 @@ async function iniciar() {
     }));
 
     // Deixa quem está logado (ou null) disponível em todas as páginas, com o nome "usuario",
-    // e se a pessoa é instrutor (ou administrador), com o nome "ehInstrutor"
+    // e o que a pessoa pode fazer, com os nomes "ehInstrutor" e "ehAdministrador"
     app.use((req, res, next) => {
         res.locals.usuario = null;
 
         if (req.session.usuarioId) {
-            res.locals.usuario = usuarios.buscarPorId(req.session.usuarioId) || null;
+            const usuario = usuarios.buscarPorId(req.session.usuarioId);
+
+            // Uma conta bloqueada (ou apagada) perde a sessão na hora, mesmo no meio do uso
+            if (usuario === undefined || usuario.bloqueado) {
+                delete req.session.usuarioId;
+            } else {
+                res.locals.usuario = usuario;
+            }
         }
 
         res.locals.ehInstrutor = res.locals.usuario !== null && res.locals.usuario.temPapel(PAPEL_INSTRUTOR);
+        res.locals.ehAdministrador = res.locals.usuario !== null && res.locals.usuario.temPapel(PAPEL_ADMINISTRADOR);
         next();
     });
 
@@ -73,6 +83,16 @@ async function iniciar() {
     app.use('/instrutor', (req, res, next) => {
         if (!res.locals.ehInstrutor) {
             res.status(403).send('Esta página é só para instrutores.');
+            return;
+        }
+
+        next();
+    });
+
+    // E as que começam com /administrador, só para administradores
+    app.use('/administrador', (req, res, next) => {
+        if (!res.locals.ehAdministrador) {
+            res.status(403).send('Esta página é só para administradores.');
             return;
         }
 
@@ -96,6 +116,9 @@ async function iniciar() {
     app.get('/instrutor/desafios/:id/editar', (req, res) => gerenciar.editar(req, res));
     app.post('/instrutor/desafios/:id', (req, res) => gerenciar.salvar(req, res));
     app.post('/instrutor/desafios/:id/excluir', (req, res) => gerenciar.excluir(req, res));
+    app.get('/administrador/usuarios', (req, res) => contasDoAdministrador.listar(req, res));
+    app.post('/administrador/usuarios/:id/papel', (req, res) => contasDoAdministrador.alterarPapel(req, res));
+    app.post('/administrador/usuarios/:id/bloqueio', (req, res) => contasDoAdministrador.alterarBloqueio(req, res));
 
     app.listen(PORTA, () => {
         console.log(`Laboratório em http://localhost:${PORTA}`);

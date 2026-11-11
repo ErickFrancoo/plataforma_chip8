@@ -31,9 +31,19 @@ class UsuarioRepositorio {
         return this.buscarPorEmail(email) !== undefined;
     }
 
-    // Usado pelo comando "promover", enquanto não existe a página do administrador (UC17)
+    // Todas as contas, em ordem alfabética (para o administrador)
+    listar() {
+        const linhas = this.banco.prepare('SELECT * FROM usuarios ORDER BY nome').all();
+        return linhas.map((linha) => this.criarUsuario(linha));
+    }
+
+    // Usado pela página do administrador (UC17) e pelo comando "promover"
     alterarPapel(id, papel) {
         this.banco.prepare('UPDATE usuarios SET papel = ? WHERE id = ?').run(papel, id);
+    }
+
+    alterarBloqueio(id, bloqueado) {
+        this.banco.prepare('UPDATE usuarios SET bloqueado = ? WHERE id = ?').run(bloqueado ? 1 : 0, id);
     }
 
     // Transforma uma linha da tabela num objeto Usuario

@@ -1,0 +1,66 @@
+<%# Lista das contas para o administrador (UC17). Recebe: contas, papeis, nomeDoPapel (função que deixa o
+    papel legível), mensagem (ou null) e ehErro. "usuario" é o administrador que está usando a página. %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usuários · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'usuarios', comPerfil: false }) %>
+
+    <main class="pagina">
+        <h2>Usuários</h2>
+        <p class="subtitulo">Mude o papel das contas e bloqueie quem não deve mais entrar. O bloqueio vale na hora.</p>
+
+        <% if (mensagem) { %>
+            <p class="<%= ehErro ? 'erro' : 'aviso-ok' %>"><%= mensagem %></p>
+        <% } %>
+
+        <div class="caixa-da-tabela">
+            <table class="tabela">
+                <tr><th>Conta</th><th>Papel</th><th>Situação</th><th></th></tr>
+                <% for (const conta of contas) { %>
+                    <tr>
+                        <td><strong><%= conta.nome %></strong><br><span class="detalhe"><%= conta.email %></span></td>
+
+                        <%# O administrador não mexe na própria conta, por isso ela aparece sem os botões %>
+                        <% if (conta.id === usuario.id) { %>
+                            <td><%= nomeDoPapel(conta.papel) %> <span class="detalhe">(você)</span></td>
+                            <td><span class="selo">Ativa</span></td>
+                            <td></td>
+                        <% } else { %>
+                            <td>
+                                <form class="acoes-da-linha" method="post" action="/administrador/usuarios/<%= conta.id %>/papel">
+                                    <select name="papel" aria-label="Papel de <%= conta.nome %>">
+                                        <% for (const papel of papeis) { %>
+                                            <option value="<%= papel %>" <%= conta.papel === papel ? 'selected' : '' %>><%= nomeDoPapel(papel) %></option>
+                                        <% } %>
+                                    </select>
+                                    <button class="chip" type="submit">Mudar</button>
+                                </form>
+                            </td>
+                            <td>
+                                <% if (conta.bloqueado) { %>
+                                    <span class="selo selo-rascunho">Bloqueada</span>
+                                <% } else { %>
+                                    <span class="selo">Ativa</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <form method="post" action="/administrador/usuarios/<%= conta.id %>/bloqueio">
+                                    <input type="hidden" name="bloquear" value="<%= conta.bloqueado ? 'nao' : 'sim' %>">
+                                    <button class="chip" type="submit"><%= conta.bloqueado ? 'Desbloquear' : 'Bloquear' %></button>
+                                </form>
+                            </td>
+                        <% } %>
+                    </tr>
+                <% } %>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
