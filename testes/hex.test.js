@@ -1,7 +1,7 @@
 // Testes da conversão entre o texto do editor e os bytes do programa.
 const test = require('node:test');
 const assert = require('node:assert');
-const { converterPrograma, textoDoPrograma } = require('../compartilhado/hex.js');
+const { converterPrograma, textoDoPrograma, enderecosDasLinhas } = require('../compartilhado/hex.js');
 
 test('converte instruções em bytes', () => {
     const resultado = converterPrograma('6003 6107');
@@ -55,6 +55,11 @@ test('devolve endereço, código e comentário de cada instrução', () => {
         { linha: 2, endereco: 0x200, codigo: '6003', comentario: 'V0 = 3' },
         { linha: 4, endereco: 0x202, codigo: '8A14', comentario: 'soma' }
     ]);
+});
+
+test('mostra endereços de memória por linha e ignora vazias, espaços e comentários', () => {
+    const resultado = enderecosDasLinhas('// título\n6003\n\n  6107\n// outra\n8A14');
+    assert.deepStrictEqual(resultado, [null, 0x200, null, null, null, 0x202]);
 });
 
 test('instrução sem comentário fica com o comentário vazio', () => {

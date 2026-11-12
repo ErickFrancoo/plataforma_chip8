@@ -81,10 +81,14 @@
                 <div id="exemplos" class="chips"></div>
             <% } %>
 
-                <label for="editor">
-                </label>
-                <textarea id="editor" spellcheck="false">
-                </textarea>
+                <div class="editor-com-enderecos">
+                    <div class="enderecos-editor" id="enderecosEditor">
+                        <div id="enderecosContent">
+                            <!-- Os endereços gerados via JS entram aqui -->
+                        </div>
+                    </div>
+                    <textarea id="editor"></textarea>
+                </div>
 
             <div id="listagem" class="listagem">
                 <div id="destaque" class="destaque oculto"></div>
@@ -102,6 +106,9 @@
                 <button id="botao-editar" class="chip" type="button">Editar</button>
                 <label class="chip">Abrir .ch8
                     <input type="file" id="arquivo" accept=".ch8" hidden>
+                </label>
+                <label class="chip">Importar texto
+                    <input type="file" id="arquivo-texto" accept=".txt,.hex,.ch8,text/plain" hidden>
                 </label>
                 <% if (desafio) { %>
                     <%# O formulário envia só o texto do programa; o servidor executa e decide %>

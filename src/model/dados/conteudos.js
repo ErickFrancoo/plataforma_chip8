@@ -114,7 +114,7 @@ da instrução, e os outros são os dados dela:</p>
     <li><strong>NN</strong>: um byte;</li>
     <li><strong>NNN</strong>: um endereço de memória.</li>
 </ul>
-<p><strong>Como ler uma instrução:</strong> <code>6107</code> segue o modelo <code>6XNN</code>. Então X = 1 e
+<p><strong>Como ler uma instrução:</strong> por exemplo <code>6107</code> segue o modelo <code>6XNN</code>. Então X = 1 e
 NN = 07, e a instrução quer dizer <strong>V1 = 7</strong>.</p>
 
 <h3>As instruções mais usadas</h3>

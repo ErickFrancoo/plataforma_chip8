@@ -32,6 +32,8 @@ const TEXTO_INICIAL_DO_DESAFIO =
 `;
 
 const editor = document.getElementById('editor');
+const enderecosEditor = document.getElementById('enderecosEditor');
+const enderecosContent = document.getElementById('enderecosContent'); // Adicionado
 const listaDeErros = document.getElementById('erros');
 const situacao = document.getElementById('situacao');
 const barraDeVelocidade = document.getElementById('velocidade');
@@ -43,6 +45,25 @@ const botaoPausar = document.getElementById('botao-pausar');
 const botaoPasso = document.getElementById('botao-passo');
 const botaoReiniciar = document.getElementById('botao-reiniciar');
 const botaoEditar = document.getElementById('botao-editar');
+
+function atualizarEnderecosDoEditor() {
+    if (!enderecosContent || !editor) {
+        return;
+    }
+
+    const linhas = editor.value.split('\n');
+    const enderecos = enderecosDasLinhas(editor.value);
+
+    // Atualiza o conteúdo dentro de #enderecosContent para preservar a estrutura de scroll
+    enderecosContent.innerHTML = linhas.map((linha, indice) => {
+        const endereco = enderecos[indice];
+        if (endereco === null) {
+            return '<div></div>';
+        }
+        return `<div>0x${hex2((endereco >> 8) & 0xFF) + hex2(endereco & 0xFF)}</div>`;
+    }).join('');
+}
+
 
 const tela = new Tela(document.getElementById('tela'));
 const teclado = new Teclado();
@@ -220,6 +241,7 @@ function preencherExemplos() {
 
 function escolherExemplo(posicao) {
     editor.value = EXEMPLOS[posicao].codigo;
+    atualizarEnderecosDoEditor();
     mostrarErros([]);
     editar();
 
@@ -233,6 +255,7 @@ function escolherExemplo(posicao) {
 function prepararDesafio() {
     const salva = sessionStorage.getItem('solucao-desafio-' + desafioId);
     editor.value = salva !== null ? salva : TEXTO_INICIAL_DO_DESAFIO;
+    atualizarEnderecosDoEditor();
 }
 
 // Ao submeter, o texto do editor vai no formulário e fica guardado para o "Tentar de novo"
@@ -255,6 +278,15 @@ botaoPasso.addEventListener('click', proximaInstrucao);
 botaoReiniciar.addEventListener('click', reiniciar);
 botaoEditar.addEventListener('click', editar);
 barraDeVelocidade.addEventListener('input', mostrarVelocidade);
+editor.addEventListener('input', atualizarEnderecosDoEditor);
+editor.addEventListener('scroll', () => {
+    if (enderecosContent) {
+        const offsetLinhas = 33.5;
+        // Somar o offset em vez de subtrair, ou ajustar para compensar o topo fixo
+        const y = Math.max(0, editor.scrollTop + offsetLinhas);
+        enderecosContent.style.transform = `translateY(-${y}px)`;
+    }
+});
 
 if (seletorDePerfil !== null) {
     seletorDePerfil.addEventListener('change', aplicarPerfil);
@@ -269,6 +301,20 @@ document.getElementById('arquivo').addEventListener('change', (evento) => {
     }
 });
 
+document.getElementById('arquivo-texto').addEventListener('change', (evento) => {
+    if (evento.target.files.length === 0) {
+        return;
+    }
+
+    const arquivo = evento.target.files[0];
+    arquivo.text().then((conteudo) => {
+        editor.value = conteudo;
+        atualizarEnderecosDoEditor();
+        mostrarErros([]);
+        editar();
+    });
+});
+
 // O núcleo carrega o chip8.wasm em segundo plano; o laboratório começa quando ele estiver pronto
 carregarNucleo().then((nucleo) => {
     modulo = nucleo;
@@ -281,6 +327,7 @@ carregarNucleo().then((nucleo) => {
         preencherExemplos();
     }
 
+    atualizarEnderecosDoEditor();
     mostrarVelocidade();
     botaoExecutar.disabled = false;
     setInterval(quadro, 1000 / QUADROS_POR_SEGUNDO);
