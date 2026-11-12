@@ -32,8 +32,7 @@ const TEXTO_INICIAL_DO_DESAFIO =
 `;
 
 const editor = document.getElementById('editor');
-const enderecosEditor = document.getElementById('enderecosEditor');
-const enderecosContent = document.getElementById('enderecosContent'); // Adicionado
+const enderecosContent = document.getElementById('enderecosContent');
 const listaDeErros = document.getElementById('erros');
 const situacao = document.getElementById('situacao');
 const barraDeVelocidade = document.getElementById('velocidade');
@@ -46,21 +45,16 @@ const botaoPasso = document.getElementById('botao-passo');
 const botaoReiniciar = document.getElementById('botao-reiniciar');
 const botaoEditar = document.getElementById('botao-editar');
 
+// Escreve na coluna à esquerda do editor o endereço de cada linha, como 0x0200 (nada nas linhas sem instrução)
 function atualizarEnderecosDoEditor() {
-    if (!enderecosContent || !editor) {
-        return;
-    }
-
-    const linhas = editor.value.split('\n');
     const enderecos = enderecosDasLinhas(editor.value);
 
-    // Atualiza o conteúdo dentro de #enderecosContent para preservar a estrutura de scroll
-    enderecosContent.innerHTML = linhas.map((linha, indice) => {
-        const endereco = enderecos[indice];
+    enderecosContent.innerHTML = enderecos.map((endereco) => {
         if (endereco === null) {
             return '<div></div>';
         }
-        return `<div>0x${hex2((endereco >> 8) & 0xFF) + hex2(endereco & 0xFF)}</div>`;
+
+        return '<div>0x' + endereco.toString(16).toUpperCase().padStart(4, '0') + '</div>';
     }).join('');
 }
 
@@ -279,13 +273,9 @@ botaoReiniciar.addEventListener('click', reiniciar);
 botaoEditar.addEventListener('click', editar);
 barraDeVelocidade.addEventListener('input', mostrarVelocidade);
 editor.addEventListener('input', atualizarEnderecosDoEditor);
+// A coluna de endereços sobe junto com o texto quando o editor é rolado
 editor.addEventListener('scroll', () => {
-    if (enderecosContent) {
-        const offsetLinhas = 33.5;
-        // Somar o offset em vez de subtrair, ou ajustar para compensar o topo fixo
-        const y = Math.max(0, editor.scrollTop + offsetLinhas);
-        enderecosContent.style.transform = `translateY(-${y}px)`;
-    }
+    enderecosContent.style.transform = `translateY(-${editor.scrollTop}px)`;
 });
 
 if (seletorDePerfil !== null) {

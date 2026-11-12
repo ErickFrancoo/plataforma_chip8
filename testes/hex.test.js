@@ -57,9 +57,27 @@ test('devolve endereço, código e comentário de cada instrução', () => {
     ]);
 });
 
-test('mostra endereços de memória por linha e ignora vazias, espaços e comentários', () => {
+test('mostra o endereço de cada linha; linhas vazias e comentários ficam sem endereço', () => {
+    // A linha com recuo também é uma instrução: o laboratório a executa em 0x202
     const resultado = enderecosDasLinhas('// título\n6003\n\n  6107\n// outra\n8A14');
-    assert.deepStrictEqual(resultado, [null, 0x200, null, null, null, 0x202]);
+    assert.deepStrictEqual(resultado, [null, 0x200, null, 0x202, null, 0x204]);
+});
+
+test('numa linha com várias instruções, as próximas linhas continuam com o endereço certo', () => {
+    // É como o laboratório escreve um .ch8 aberto: 8 instruções por linha
+    const resultado = enderecosDasLinhas('6105 6000\n7001\n3005');
+    assert.deepStrictEqual(resultado, [0x200, 0x204, 0x206]);
+});
+
+test('os endereços da coluna são os mesmos que o laboratório usa para executar', () => {
+    const texto = '6003 6107  // dois valores\n  8A14\n\n// fim\n1206';
+    const enderecos = enderecosDasLinhas(texto);
+    const instrucoes = converterPrograma(texto).instrucoes; // 6003, 6107, 8A14 e 1206
+
+    // Cada linha mostra o endereço da primeira instrução dela
+    assert.strictEqual(enderecos[0], instrucoes[0].endereco); // 6003, em 0x200
+    assert.strictEqual(enderecos[1], instrucoes[2].endereco); // 8A14, em 0x204
+    assert.strictEqual(enderecos[4], instrucoes[3].endereco); // 1206, em 0x206
 });
 
 test('instrução sem comentário fica com o comentário vazio', () => {

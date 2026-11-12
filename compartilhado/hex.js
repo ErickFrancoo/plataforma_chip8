@@ -71,25 +71,16 @@ function textoDoPrograma(bytes) {
     return linhas.join('\n');
 }
 
-// Devolve o endereço de memória de cada linha do editor. Linhas vazias, com recuo inicial
-// ou comentário são ignoradas. As instruções válidas entram em 0x200 e avançam 2 bytes.
+// Devolve o endereço de memória de cada linha do editor, ou null nas linhas sem instrução.
+// Usa o converterPrograma, que é o que executa o programa: assim a coluna de endereços e o
+// processador nunca discordam. Numa linha com várias instruções, vale o endereço da primeira.
 function enderecosDasLinhas(texto) {
-    const enderecos = [];
-    let enderecoAtual = ENDERECO_INICIAL;
+    const enderecos = texto.split('\n').map(() => null);
 
-    for (const linha of texto.split('\n')) {
-        const semEspacos = linha.trimStart();
-        const comEspacoNoInicio = linha !== semEspacos;
-        const eLinhaVazia = semEspacos === '';
-        const eComentario = semEspacos.startsWith('//');
-
-        if (eLinhaVazia || eComentario || comEspacoNoInicio) {
-            enderecos.push(null);
-            continue;
+    for (const instrucao of converterPrograma(texto).instrucoes) {
+        if (enderecos[instrucao.linha - 1] === null) {
+            enderecos[instrucao.linha - 1] = instrucao.endereco;
         }
-
-        enderecos.push(enderecoAtual);
-        enderecoAtual += 2;
     }
 
     return enderecos;

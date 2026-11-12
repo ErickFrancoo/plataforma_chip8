@@ -350,29 +350,26 @@ textarea,
     overflow: hidden;
     padding: 0;
 }
-/*Cuidado ao mexer, qualquer alteração pode afetar o layout */
+/* A coluna de endereços precisa ter a mesma fonte, o mesmo tamanho, a mesma altura de linha e o mesmo
+   padding do editor (textarea, logo abaixo): só assim cada endereço fica na altura da sua linha. */
 .enderecos-editor {
-    font-family: monospace; /* Garanta que a fonte seja monoespaçada */
-    font-size: 14px;        /* Defina um tamanho fixo */
-    line-height: 1.2;       /* Ajuste unificado */
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.2;
     margin-top: 0;
-    padding: 10px;          /*!* Padronize as margens internas *!*/
+    padding: 10px;
     background: #f5f7ef;
     border-right: 1px solid var(--linha);
     color: var(--suave);
     text-align: right;
     overflow: hidden;
     user-select: none;
-    white-space: pre;
 }
 
 .enderecos-editor div {
-    height: 1.2em;          /* Garante altura exata por linha baseada no line-height */
+    height: 1.2em; /* uma linha do editor, mesmo quando não tem endereço */
 }
-/*enjambre pra sincronizar as divs de endereços com o texto linha a linha*/
-#enderecosContent {
-    transform: translateY(-33.5px); /* Ajuste os pixels se precisar de mais ou menos */
-}
+
 textarea {
     box-sizing: border-box;
     font-family: monospace; /* Mesma fonte do editor de endereços */
