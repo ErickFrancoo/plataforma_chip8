@@ -71,6 +71,30 @@ function textoDoPrograma(bytes) {
     return linhas.join('\n');
 }
 
+// Devolve o endereço de memória de cada linha do editor. Linhas vazias, com recuo inicial
+// ou comentário são ignoradas. As instruções válidas entram em 0x200 e avançam 2 bytes.
+function enderecosDasLinhas(texto) {
+    const enderecos = [];
+    let enderecoAtual = ENDERECO_INICIAL;
+
+    for (const linha of texto.split('\n')) {
+        const semEspacos = linha.trimStart();
+        const comEspacoNoInicio = linha !== semEspacos;
+        const eLinhaVazia = semEspacos === '';
+        const eComentario = semEspacos.startsWith('//');
+
+        if (eLinhaVazia || eComentario || comEspacoNoInicio) {
+            enderecos.push(null);
+            continue;
+        }
+
+        enderecos.push(enderecoAtual);
+        enderecoAtual += 2;
+    }
+
+    return enderecos;
+}
+
 // Escreve um byte com 2 dígitos hexadecimais, como 0A
 function hex2(valor) {
     return valor.toString(16).toUpperCase().padStart(2, '0');
@@ -78,5 +102,5 @@ function hex2(valor) {
 
 // No Node (testes e servidor) as funções são exportadas; no navegador elas ficam disponíveis direto.
 if (typeof module !== 'undefined') {
-    module.exports = { converterPrograma, textoDoPrograma, hex2, ENDERECO_INICIAL, TAMANHO_MAXIMO };
+    module.exports = { converterPrograma, textoDoPrograma, enderecosDasLinhas, hex2, ENDERECO_INICIAL, TAMANHO_MAXIMO };
 }
