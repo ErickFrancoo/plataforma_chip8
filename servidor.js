@@ -109,6 +109,7 @@ async function iniciar() {
     app.post('/sair', (req, res) => contas.sair(req, res));
     app.get('/aprender', (req, res) => conteudos.listar(req, res));
     app.get('/aprender/:id', (req, res) => conteudos.abrir(req, res));
+    app.get('/sobre', (req, res) => res.render('sobre'));
     app.get('/desafios', (req, res) => desafios.listar(req, res));
     app.get('/desafios/:id', (req, res) => desafios.abrir(req, res));
     app.post('/desafios/:id/submeter', (req, res) => submissoes.submeter(req, res));
