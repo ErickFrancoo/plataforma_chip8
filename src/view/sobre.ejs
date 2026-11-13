@@ -1,0 +1,294 @@
+<%# Sobre o CHIP-8: a história, a arquitetura, como construir um emulador e links para saber mais.
+    É uma página fixa, sem dados do banco. Usa os estilos de Aprender (texto-conteudo). %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sobre o CHIP-8 · Laboratório CHIP-8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/laboratorio/estilo.css">
+</head>
+<body>
+    <%- include('parciais/topo', { pagina: 'sobre', comPerfil: false }) %>
+
+    <main class="pagina">
+        <span class="rotulo">SOBRE</span>
+        <h2>O que é o CHIP-8</h2>
+
+        <article class="texto-conteudo">
+            <p>O CHIP-8 é um computador simples, com poucas peças e só 35 instruções. Ele nunca existiu como um
+            chip de verdade: é uma <strong>máquina virtual</strong>, um computador descrito por regras e executado
+            por um programa. Justamente por ser pequeno e bem documentado, ele virou o primeiro passo de quem quer
+            entender como um processador funciona por dentro, e de quem quer construir o seu próprio emulador.</p>
+
+            <h3>Um pouco de história</h3>
+            <ul>
+                <li><strong>1977:</strong> Joseph Weisbecker cria o CHIP-8 para o COSMAC VIP, um computador pessoal
+                da RCA. Programar direto no processador da máquina era difícil, e o CHIP-8 permitia escrever jogos com
+                instruções mais simples. O interpretador ocupava os primeiros 512 bytes da memória, e por isso os
+                programas começam no endereço <code>0x200</code> até hoje.</li>
+                <li><strong>1991:</strong> o SUPER-CHIP leva o CHIP-8 para as calculadoras gráficas HP-48, com uma
+                tela maior e instruções novas. Muitos jogos que circulam hoje foram feitos para ele.</li>
+                <li><strong>2014:</strong> o XO-CHIP, criado junto com o ambiente Octo, acrescenta cores, som melhor
+                e mais memória, e mantém a comunidade ativa até hoje.</li>
+            </ul>
+
+            <h3>A arquitetura</h3>
+            <table>
+                <tr><th>Parte</th><th>Como é</th></tr>
+                <tr><td>Memória</td><td>4.096 bytes, de <code>0x000</code> a <code>0xFFF</code>. Os programas começam
+                    em <code>0x200</code>, e o desenho dos dígitos de 0 a F (a fonte) fica antes disso.</td></tr>
+                <tr><td>Registradores</td><td>16 registradores de 8 bits, de V0 a VF. O VF também guarda avisos, como o
+                    "vai-um" de uma soma e a colisão entre desenhos.</td></tr>
+                <tr><td>I</td><td>Um registrador de 16 bits que guarda endereços de memória, como o de um desenho.</td></tr>
+                <tr><td>PC</td><td>O endereço da próxima instrução.</td></tr>
+                <tr><td>Pilha</td><td>Guarda os endereços de retorno das sub-rotinas (<code>2NNN</code> e
+                    <code>00EE</code>).</td></tr>
+                <tr><td>Timers</td><td>Dois contadores de 8 bits, o de atraso (DT) e o de som (ST), que descem 60
+                    vezes por segundo até chegar a 0.</td></tr>
+                <tr><td>Tela</td><td>64 x 32 pixels, só aceso ou apagado. Os desenhos invertem os pixels, o que
+                    permite detectar colisões.</td></tr>
+                <tr><td>Teclado</td><td>16 teclas, de 0 a F.</td></tr>
+                <tr><td>Instruções</td><td>35, todas com 2 bytes, escritas como 4 dígitos hexadecimais. O primeiro
+                    dígito diz o tipo da instrução.</td></tr>
+            </table>
+            <p>O processador repete sempre o mesmo ciclo: <strong>busca</strong> os 2 bytes que estão no endereço
+            do PC, <strong>decodifica</strong> a instrução e a <strong>executa</strong>. As páginas de
+            <a href="/aprender">Aprender</a> explicam cada parte com exemplos para rodar no laboratório.</p>
+
+            <h3>Como funciona um emulador</h3>
+            <p>Um emulador é um programa que faz o papel da máquina: ele guarda a memória e os registradores em
+            variáveis e repete o ciclo de busca, decodificação e execução. O coração de qualquer emulador de
+            CHIP-8 cabe em poucas linhas:</p>
+<pre>while (rodando) {
+    // Busca: os 2 bytes do PC formam a instrução
+    const instrucao = (memoria[pc] &lt;&lt; 8) | memoria[pc + 1];
+    pc += 2;
+
+    // Decodifica pelo primeiro dígito e executa
+    switch (instrucao &amp; 0xF000) {
+        case 0x6000: // 6XNN: VX = NN
+            V[(instrucao &gt;&gt; 8) &amp; 0xF] = instrucao &amp; 0xFF;
+            break;
+        case 0x1000: // 1NNN: salta para NNN
+            pc = instrucao &amp; 0x0FFF;
+            break;
+        // ... uma entrada para cada tipo de instrução
+    }
+}</pre>
+            <p>O resto é desenhar a tela, ler o teclado e descer os timers 60 vezes por segundo.</p>
+
+            <h3>Como construir o seu</h3>
+            <p>Construir um emulador de CHIP-8 é um projeto clássico para aprender arquitetura de computadores: em
+            poucas tardes, você escreve um processador inteiro e vê jogos de verdade rodando nele. Dá para fazer em
+            qualquer linguagem. Os trechos de código abaixo estão em JavaScript, mas a ideia é a mesma em todas.</p>
+
+            <h4>1. Escolha a linguagem e como desenhar a tela</h4>
+            <p>Prefira uma linguagem que você já conhece: o desafio está no processador, e não na linguagem. Você só
+            precisa de um jeito de desenhar quadrados numa janela e de ler o teclado.</p>
+            <table>
+                <tr><th>Linguagem</th><th>Para a tela e o teclado</th></tr>
+                <tr><td>C ou C++</td><td>SDL ou <a href="https://www.raylib.com/" target="_blank" rel="noopener">raylib</a>
+                    (a versão de desktop do emulador desta plataforma usa a raylib)</td></tr>
+                <tr><td>Python</td><td>pygame</td></tr>
+                <tr><td>JavaScript</td><td>o canvas do navegador, sem instalar nada</td></tr>
+                <tr><td>Java, C#, Rust, Go...</td><td>qualquer biblioteca de jogos 2D</td></tr>
+            </table>
+
+            <h4>2. Crie o estado da máquina</h4>
+            <p>Tudo o que a máquina "sabe" cabe em poucas variáveis. Use tipos de 8 bits para a memória e para os
+            registradores: assim, um valor que passa de 255 volta para 0 sozinho, como num registrador de verdade.</p>
+<pre>const memoria = new Uint8Array(4096);    // 0x000 a 0xFFF
+const V = new Uint8Array(16);            // V0 a VF
+let I = 0;
+let pc = 0x200;                          // os programas começam aqui
+const pilha = [];                        // endereços de retorno das sub-rotinas
+let dt = 0;                              // timer de atraso
+let st = 0;                              // timer de som
+const tela = new Uint8Array(64 * 32);    // cada pixel: 0 apagado, 1 aceso
+const teclas = new Array(16).fill(false);</pre>
+
+            <h4>3. Carregue a fonte e o programa</h4>
+            <p>A <strong>fonte</strong> são os desenhos dos dígitos de 0 a F: 16 dígitos com 5 bytes cada, 80 bytes
+            no total. Ela costuma ficar em <code>0x050</code>. Cada byte é uma linha de 4 pixels (os bits da
+            esquerda). O dígito 0, por exemplo:</p>
+<pre>F0  =  1111 0000   →   ████
+90  =  1001 0000   →   █  █
+90  =  1001 0000   →   █  █
+90  =  1001 0000   →   █  █
+F0  =  1111 0000   →   ████</pre>
+            <p>Depois, copie os bytes do arquivo <code>.ch8</code> para a memória, a partir de <code>0x200</code>.
+            Um arquivo <code>.ch8</code> não tem cabeçalho nem nada além do programa: são só as instruções, uma
+            atrás da outra.</p>
+
+            <h4>4. Escreva o laço e separe as partes da instrução</h4>
+            <p>A cada volta, junte os 2 bytes do PC numa instrução de 16 bits e separe as partes que as instruções
+            usam. Isso é feito com deslocamentos (<code>&gt;&gt;</code>) e máscaras (<code>&amp;</code>):</p>
+<pre>const instrucao = (memoria[pc] &lt;&lt; 8) | memoria[pc + 1];   // ex.: 0x8214
+pc += 2;
+
+const x   = (instrucao &gt;&gt; 8) &amp; 0xF;   // 2º dígito: um registrador  → 2
+const y   = (instrucao &gt;&gt; 4) &amp; 0xF;   // 3º dígito: outro registrador → 1
+const n   = instrucao &amp; 0xF;          // último dígito               → 4
+const nn  = instrucao &amp; 0xFF;         // último byte                 → 0x14
+const nnn = instrucao &amp; 0xFFF;        // um endereço                 → 0x214</pre>
+            <p>Depois, um <code>switch</code> pelo primeiro dígito (<code>instrucao &amp; 0xF000</code>) escolhe o
+            que fazer. Nas famílias <code>8XY_</code>, <code>EX__</code> e <code>FX__</code>, um segundo
+            <code>switch</code> olha o fim da instrução (<code>n</code> ou <code>nn</code>).</p>
+
+            <h4>5. Comece por poucas instruções</h4>
+            <p>Não tente escrever as 35 de uma vez. Com só seis delas, já dá para ver o primeiro desenho na tela:
+            <code>00E0</code> (limpar a tela), <code>1NNN</code> (saltar), <code>6XNN</code> (VX = NN),
+            <code>7XNN</code> (VX = VX + NN), <code>ANNN</code> (I = NNN) e <code>DXYN</code> (desenhar).</p>
+            <p>A mais trabalhosa é a <code>DXYN</code>. Ela lê N bytes a partir do I e inverte os pixels da tela
+            onde há bits 1. Se algum pixel aceso apagar, o VF fica 1 (é assim que os jogos detectam colisões):</p>
+<pre>case 0xD000: {
+    const x0 = V[x] % 64;                 // a posição dá a volta na tela...
+    const y0 = V[y] % 32;
+    V[0xF] = 0;
+
+    for (let linha = 0; linha &lt; n; linha++) {
+        const byte = memoria[I + linha];
+
+        for (let coluna = 0; coluna &lt; 8; coluna++) {
+            const px = x0 + coluna;
+            const py = y0 + linha;
+
+            if (px &gt;= 64 || py &gt;= 32) continue;           // ...mas o desenho é cortado na borda
+            if ((byte &amp; (0x80 &gt;&gt; coluna)) === 0) continue; // bit 0: não mexe no pixel
+
+            const i = py * 64 + px;
+            if (tela[i] === 1) V[0xF] = 1;                  // apagou um pixel: colisão
+            tela[i] ^= 1;                                    // inverte o pixel
+        }
+    }
+    break;
+}</pre>
+            <p>Com essas seis, rode os dois primeiros programas da coleção de testes de Timendus
+            (<code>1-chip8-logo.ch8</code> e <code>2-ibm-logo.ch8</code>). Se o logotipo aparecer certinho, a base
+            do seu emulador está funcionando.</p>
+
+            <h4>6. Acrescente as outras instruções</h4>
+            <p>Faça uma família por vez e teste cada uma antes de seguir:</p>
+            <table>
+                <tr><th>Família</th><th>Instruções</th><th>Atenção</th></tr>
+                <tr><td>Saltos e testes</td><td><code>2NNN</code>, <code>00EE</code>, <code>3XNN</code>,
+                    <code>4XNN</code>, <code>5XY0</code>, <code>9XY0</code>, <code>BNNN</code></td>
+                    <td><code>2NNN</code> guarda o PC na pilha antes de saltar; <code>00EE</code> o tira de lá.</td></tr>
+                <tr><td>Contas</td><td><code>8XY0</code> a <code>8XYE</code></td>
+                    <td>Grave o resultado em VX <strong>antes</strong> de gravar o VF. Se X for F, o valor que fica é o
+                    do VF, e é isso que os testes conferem.</td></tr>
+                <tr><td>Memória</td><td><code>FX1E</code>, <code>FX29</code>, <code>FX33</code>,
+                    <code>FX55</code>, <code>FX65</code></td>
+                    <td><code>FX33</code> grava as centenas, as dezenas e as unidades de VX em I, I+1 e I+2.</td></tr>
+                <tr><td>Sorteio</td><td><code>CXNN</code></td><td>Um número aleatório de 0 a 255, combinado com NN
+                    por um "e" (<code>&amp;</code>).</td></tr>
+                <tr><td>Teclado</td><td><code>EX9E</code>, <code>EXA1</code>, <code>FX0A</code></td>
+                    <td><code>FX0A</code> espera uma tecla: um jeito simples é voltar o PC 2 bytes
+                    (<code>pc -= 2</code>) enquanto nenhuma tecla for apertada.</td></tr>
+                <tr><td>Timers</td><td><code>FX07</code>, <code>FX15</code>, <code>FX18</code></td>
+                    <td>Só leem e gravam o DT e o ST. Quem os faz descer é o passo 7.</td></tr>
+            </table>
+
+            <h4>7. Velocidade, timers, tela e som</h4>
+            <p>O CHIP-8 não define a velocidade do processador, mas os timers descem sempre 60 vezes por segundo. Um
+            jeito simples de organizar tudo é um laço que roda 60 vezes por segundo:</p>
+<pre>function quadro() {                      // chamado 60 vezes por segundo
+    for (let i = 0; i &lt; 11; i++) {
+        executarUmaInstrucao();           // uns 660 por segundo
+    }
+
+    if (dt &gt; 0) dt--;
+    if (st &gt; 0) st--;
+
+    desenharTela();
+    tocarBipe(st &gt; 0);                    // o som toca enquanto o ST for maior que 0
+}</pre>
+            <p>Entre 600 e 700 instruções por segundo, a maioria dos jogos roda na velocidade certa. O teclado do
+            CHIP-8 costuma ficar nas teclas <kbd>1</kbd>-<kbd>4</kbd>, <kbd>Q</kbd>-<kbd>R</kbd>,
+            <kbd>A</kbd>-<kbd>F</kbd> e <kbd>Z</kbd>-<kbd>V</kbd>, como no laboratório desta plataforma.</p>
+
+            <h4>8. Teste com programas feitos para isso</h4>
+            <p>A coleção de testes de Timendus é a melhor ajuda: cada programa testa uma parte e mostra na tela o
+            que está errado. Rode na ordem:</p>
+            <table>
+                <tr><th>Programa</th><th>O que testa</th></tr>
+                <tr><td><code>1-chip8-logo</code>, <code>2-ibm-logo</code></td><td>As seis instruções do passo 5.</td></tr>
+                <tr><td><code>3-corax+</code></td><td>Quase todas as instruções, uma por uma.</td></tr>
+                <tr><td><code>4-flags</code></td><td>O VF depois das contas: o erro mais comum.</td></tr>
+                <tr><td><code>5-quirks</code></td><td>As variações entre versões (passo 9).</td></tr>
+                <tr><td><code>6-keypad</code></td><td>O teclado.</td></tr>
+                <tr><td><code>7-beep</code></td><td>O som.</td></tr>
+            </table>
+            <p><strong>Para achar um erro:</strong> mostre o PC e a instrução atual na tela e avance uma instrução
+            por vez. Você também pode rodar o mesmo programa no <a href="/">laboratório desta plataforma</a>, no
+            passo a passo, e comparar os registradores com os do seu emulador: o primeiro registrador diferente
+            aponta a instrução com problema.</p>
+
+            <h4>9. Cuidado com as variações</h4>
+            <p>Algumas instruções funcionam de jeitos diferentes no CHIP-8 original e no SUPER-CHIP. Quando um jogo
+            não funciona, quase sempre a causa é uma destas diferenças:</p>
+            <table>
+                <tr><th>Instrução</th><th>CHIP-8 original</th><th>SUPER-CHIP</th></tr>
+                <tr><td><code>8XY6</code> e <code>8XYE</code></td><td>Desloca o VY e guarda em VX</td><td>Desloca o próprio VX</td></tr>
+                <tr><td><code>FX55</code> e <code>FX65</code></td><td>O I avança</td><td>O I não muda</td></tr>
+                <tr><td><code>8XY1</code>, <code>8XY2</code> e <code>8XY3</code></td><td>Zeram o VF</td><td>Não mexem no VF</td></tr>
+                <tr><td><code>BNNN</code></td><td>Salta para NNN + V0</td><td>Salta para NNN + VX (X é o 1º dígito de NNN)</td></tr>
+            </table>
+            <p>Os jogos antigos esperam o comportamento do original; muitos jogos mais novos esperam o do
+            SUPER-CHIP. Por isso, vale deixar as variações configuráveis, como faz o seletor de perfil do
+            laboratório.</p>
+
+            <h4>10. E depois?</h4>
+            <p>Com o emulador pronto, dá para ir além: acrescentar o modo SUPER-CHIP (tela de 128 x 64 e instruções
+            de rolagem), escrever um depurador que mostra a memória e a pilha, ou criar um montador, que transforma
+            nomes como <code>V2 = 7</code> em <code>6207</code>. E, claro, escrever os seus próprios jogos.</p>
+
+            <h3>O CHIP-8 nesta plataforma</h3>
+            <p>O emulador que roda aqui foi desenvolvido por <strong>Luiz Roberto Rolian Schardosim</strong>, em C++,
+            no projeto <a href="https://github.com/FqNlR/Chip8-Emulator" target="_blank" rel="noopener">Chip8-Emulator</a>.
+            Ele é compilado para WebAssembly com o <a href="https://emscripten.org/" target="_blank" rel="noopener">Emscripten</a>,
+            e o mesmo código roda em dois lugares: no seu navegador, no laboratório, e no servidor, para corrigir
+            as soluções dos desafios. Por isso o resultado que você vê no laboratório é sempre o mesmo da
+            correção.</p>
+
+            <h3>Para saber mais</h3>
+            <p>Os conteúdos abaixo estão em inglês.</p>
+            <table>
+                <tr><th>Para</th><th>Onde</th></tr>
+                <tr><td>Uma visão geral</td>
+                    <td><a href="https://en.wikipedia.org/wiki/CHIP-8" target="_blank" rel="noopener">CHIP-8 na Wikipédia</a></td></tr>
+                <tr><td>Consultar cada instrução</td>
+                    <td><a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM" target="_blank" rel="noopener">Cowgod's Chip-8 Technical Reference</a>,
+                    a referência mais usada</td></tr>
+                <tr><td>Construir um emulador, passo a passo</td>
+                    <td><a href="https://tobiasvl.github.io/blog/write-a-chip-8-emulator/" target="_blank" rel="noopener">Guide to making a CHIP-8 emulator</a>,
+                    de Tobias V. Langhoff, sem entregar o código pronto</td></tr>
+                <tr><td>Ver um emulador completo em C++</td>
+                    <td><a href="https://austinmorlan.com/posts/chip8_emulator/" target="_blank" rel="noopener">Building a CHIP-8 Emulator [C++]</a>,
+                    de Austin Morlan, e
+                    <a href="https://multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/" target="_blank" rel="noopener">How to write an emulator</a>,
+                    de Laurence Muller</td></tr>
+                <tr><td>Testar o seu emulador</td>
+                    <td><a href="https://github.com/Timendus/chip8-test-suite" target="_blank" rel="noopener">CHIP-8 test suite</a>,
+                    de Timendus</td></tr>
+                <tr><td>Entender as variações entre versões</td>
+                    <td><a href="https://chip8.gulrak.net/" target="_blank" rel="noopener">CHIP-8 Variant Opcode Table</a>,
+                    de Gulrak, e o <a href="https://chip-8.github.io/" target="_blank" rel="noopener">CHIP-8 Research Facility</a></td></tr>
+                <tr><td>Escrever jogos numa linguagem mais fácil</td>
+                    <td><a href="https://johnearnest.github.io/Octo/" target="_blank" rel="noopener">Octo</a>,
+                    um ambiente completo que roda no navegador</td></tr>
+                <tr><td>Encontrar jogos, ferramentas e muito mais</td>
+                    <td><a href="https://github.com/tobiasvl/awesome-chip-8" target="_blank" rel="noopener">Awesome CHIP-8</a>,
+                    uma lista organizada pela comunidade</td></tr>
+            </table>
+        </article>
+
+        <div class="acoes">
+            <a class="principal" href="/aprender">Começar pelas páginas de Aprender</a>
+            <a class="chip" href="/">Abrir o laboratório</a>
+        </div>
+    </main>
+</body>
+</html>

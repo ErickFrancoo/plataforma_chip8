@@ -1,5 +1,5 @@
-<%# Topo de todas as páginas. Recebe: pagina ('laboratorio', 'aprender', 'desafios', 'progresso', 'gerenciar',
-    'usuarios' ou 'entrar') e comPerfil (true ou false). "usuario" (quem está logado, ou null), "ehInstrutor" e
+<%# Topo de todas as páginas. Recebe: pagina ('laboratorio', 'aprender', 'desafios', 'progresso', 'sobre',
+    'gerenciar', 'usuarios' ou 'entrar') e comPerfil (true ou false). "usuario" (quem está logado, ou null), "ehInstrutor" e
     "ehAdministrador" vêm do servidor. %>
 <header class="topo">
     <div class="marca">
@@ -10,6 +10,7 @@
         <a href="/" class="<%= pagina === 'laboratorio' ? 'ativo' : '' %>">Laboratório</a>
         <a href="/aprender" class="<%= pagina === 'aprender' ? 'ativo' : '' %>">Aprender</a>
         <a href="/desafios" class="<%= pagina === 'desafios' ? 'ativo' : '' %>">Desafios</a>
+        <a href="/sobre" class="<%= pagina === 'sobre' ? 'ativo' : '' %>">Sobre</a>
         <% if (usuario) { %>
             <a href="/progresso" class="<%= pagina === 'progresso' ? 'ativo' : '' %>">Meu progresso</a>
         <% } %>
