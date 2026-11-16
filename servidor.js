@@ -125,7 +125,7 @@ async function iniciar() {
     app.post('/administrador/usuarios/:id/bloqueio', (req, res) => contasDoAdministrador.alterarBloqueio(req, res));
 
     app.listen(PORTA, () => {
-        console.log(`Laboratório em http://localhost:${PORTA}`);
+        console.log(`ChipClass em http://localhost:${PORTA}`);
     });
 }
 

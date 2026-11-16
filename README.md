@@ -1,4 +1,4 @@
-# Plataforma de ensino CHIP-8
+# ChipClass
 
 Plataforma web para ensinar arquitetura de computadores com o CHIP-8: um laboratório onde se escreve um programa
 em hexadecimal e se vê a CPU funcionando, páginas para aprender, desafios corrigidos automaticamente e contas de

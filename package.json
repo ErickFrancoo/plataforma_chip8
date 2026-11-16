@@ -2,7 +2,7 @@
   "name": "plataforma-chip8",
   "version": "0.2.0",
   "private": true,
-  "description": "Plataforma de ensino CHIP-8 (projeto final de INF01127)",
+  "description": "ChipClass: plataforma de ensino CHIP-8 (projeto final de INF01127)",
   "main": "servidor.js",
   "scripts": {
     "start": "node servidor.js",
