@@ -498,7 +498,7 @@ body:not(.editando) .listagem {
     overflow-x: hidden;
 }
 
-body:not(.editando) textarea {
+body:not(.editando) #editor textarea {
     display: none;
 }
 
